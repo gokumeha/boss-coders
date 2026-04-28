@@ -13,7 +13,6 @@ export default function Navbar() {
     '/': copy.nav.home,
     '/features': copy.nav.features,
     '/categories': copy.nav.categories,
-    '/assistant': copy.nav.assistant,
     '/resources': copy.nav.resources,
   };
 
@@ -21,8 +20,11 @@ export default function Navbar() {
     <header className="site-header">
       <Link className="brand-mark" to="/">
         <span className="brand-icon">NS</span>
-        <span>
-          Nyaya<span className="brand-accent">Saathi</span>
+        <span className="brand-copy">
+          <strong className="brand-title">
+            Nyaya<span className="brand-accent">Saathi</span>
+          </strong>
+          <span className="brand-subtitle">Legal-tech guidance platform</span>
         </span>
       </Link>
 
@@ -41,6 +43,7 @@ export default function Navbar() {
       </nav>
 
       <div className="nav-controls">
+        <span className="nav-trust-pill">Protected workspace</span>
         <select
           className="language-select"
           value={language}
@@ -55,20 +58,23 @@ export default function Navbar() {
 
         {user ? (
           <>
-            <button className="nav-user" type="button" onClick={() => navigate('/assistant')}>
-              {user.displayName?.split(' ')[0] || user.email}
-            </button>
+            <div className="nav-user" role="status">
+              <span className="nav-user__label">Signed in</span>
+              <strong>{user.displayName?.split(' ')[0] || user.email}</strong>
+            </div>
             <button className="nav-auth" type="button" onClick={signOutUser}>
               {copy.nav.signOut}
             </button>
           </>
         ) : (
-          <button className="nav-auth" type="button" onClick={() => navigate('/signin')}>
-            {copy.nav.signIn}
+          <button className="nav-auth nav-auth--google" type="button" onClick={() => navigate('/signin')}>
+            <span className="nav-auth__icon" aria-hidden="true">
+              G
+            </span>
+            <span>{copy.nav.signIn}</span>
           </button>
         )}
       </div>
     </header>
   );
 }
-

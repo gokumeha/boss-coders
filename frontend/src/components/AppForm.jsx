@@ -10,6 +10,7 @@ export default function AppForm({
   result,
   loading,
   error,
+  onFieldChange,
   onSubmit,
   onReset,
   historyItems,
@@ -42,54 +43,31 @@ export default function AppForm({
   }
 
   return (
-    <div className="assistant-layout">
-      <aside className="assistant-sidebar">
-        <div className="glass-panel">
-          <p className="eyebrow">{copy.assistant.title}</p>
-          <h1>{copy.assistant.title}</h1>
-          <p>{copy.assistant.description}</p>
-        </div>
+    <div className="assistant-shell">
+      <section className="assistant-intro-panel">
+        <p className="eyebrow">{copy.assistant.title}</p>
+        <h1>{copy.assistant.title}</h1>
+        <p>{copy.assistant.description}</p>
 
-        <div className="glass-panel">
-          <h2>{copy.assistant.historyTitle}</h2>
-          {historyLoading ? (
-            <p>{copy.common.loading}...</p>
-          ) : historyItems.length ? (
-            <div className="history-list">
-              {historyItems.map((item) => (
-                <article className="history-item" key={item.id}>
-                  <strong>{item.category}</strong>
-                  <span>{item.summary}</span>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p>{copy.assistant.historyEmpty}</p>
-          )}
+        <div className="assistant-steps">
+          <span className="assistant-step-chip">1. Pick language</span>
+          <span className="assistant-step-chip">2. Choose category</span>
+          <span className="assistant-step-chip">3. Describe the issue clearly</span>
         </div>
-
-        {selectedCategory ? (
-          <div className="glass-panel">
-            <h2>{selectedCategory.title}</h2>
-            <p>{selectedCategory.description}</p>
-            <ul className="plain-list">
-              {selectedCategory.nextSteps.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-      </aside>
+      </section>
 
       <div className="assistant-main">
-        <form className="assistant-form" onSubmit={handleSubmit}>
+        <form className="assistant-form assistant-form--minimal" onSubmit={handleSubmit}>
           <div className="form-grid">
             <label className="field">
               <span>{copy.assistant.languageLabel}</span>
               <select
                 className="field-control"
                 value={form.language}
-                onChange={(event) => form.setLanguage(event.target.value)}
+                onChange={(event) => {
+                  onFieldChange?.();
+                  form.setLanguage(event.target.value);
+                }}
               >
                 {SUPPORTED_LANGUAGES.map((language) => (
                   <option key={language.value} value={language.value}>
@@ -104,7 +82,10 @@ export default function AppForm({
               <select
                 className="field-control"
                 value={form.category}
-                onChange={(event) => form.setCategory(event.target.value)}
+                onChange={(event) => {
+                  onFieldChange?.();
+                  form.setCategory(event.target.value);
+                }}
               >
                 <option value="">Select a category</option>
                 {CATEGORIES.map((category) => (
@@ -123,9 +104,28 @@ export default function AppForm({
               maxLength={form.maxQueryLength}
               placeholder="Describe the issue, who is involved, what proof you have, and what outcome you need."
               value={form.query}
-              onChange={(event) => form.setQuery(event.target.value)}
+              onChange={(event) => {
+                onFieldChange?.();
+                form.setQuery(event.target.value);
+              }}
             />
           </label>
+
+          <div className="assistant-helper-row">
+            <div className="assistant-helper-card">
+              <strong>Write a real legal situation</strong>
+              <span>
+                Include who is involved, what happened, and what help you need.
+              </span>
+            </div>
+
+            {selectedCategory ? (
+              <div className="assistant-helper-card assistant-helper-card--soft">
+                <strong>{selectedCategory.title}</strong>
+                <span>{selectedCategory.shortDescription}</span>
+              </div>
+            ) : null}
+          </div>
 
           <div className="form-meta">
             <span>
@@ -143,7 +143,40 @@ export default function AppForm({
           </button>
         </form>
 
+        {selectedCategory ? (
+          <section className="assistant-context-panel">
+            <p className="eyebrow">Category context</p>
+            <h2>{selectedCategory.title}</h2>
+            <p>{selectedCategory.description}</p>
+            <ul className="plain-list">
+              {selectedCategory.nextSteps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         {result ? <ResultDisplay onReset={onReset} result={result} /> : null}
+
+        <section className="assistant-history-panel">
+          <div className="assistant-history-head">
+            <p className="eyebrow">{copy.assistant.historyTitle}</p>
+            {historyLoading ? <span>{copy.common.loading}...</span> : null}
+          </div>
+
+          {historyItems.length ? (
+            <div className="history-list history-list--compact">
+              {historyItems.map((item) => (
+                <article className="history-item" key={item.id}>
+                  <strong>{item.category}</strong>
+                  <span>{item.summary}</span>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="assistant-history-empty">{copy.assistant.historyEmpty}</p>
+          )}
+        </section>
       </div>
     </div>
   );

@@ -21,19 +21,19 @@ export default function FeatureDetailPage() {
 
   return (
     <div className="page-stack page-stack--narrow">
-      <section className="page-hero">
+      <section className="page-hero page-hero--structured">
         <p className="eyebrow">Feature detail</p>
         <h1>{feature.title}</h1>
         <p>{feature.tagline}</p>
       </section>
 
       <section className="split-panel">
-        <article className="glass-panel">
+        <article className="glass-panel glass-panel--document">
           <h2>Why this matters</h2>
           <p>{feature.description}</p>
           <p>{feature.details}</p>
         </article>
-        <article className="glass-panel">
+        <article className="glass-panel glass-panel--document">
           <h2>What changed</h2>
           <ul className="plain-list">
             {feature.highlights.map((highlight) => (
@@ -42,7 +42,7 @@ export default function FeatureDetailPage() {
           </ul>
           <div className="panel-actions">
             <Link className="primary-action" to="/assistant">
-              Open assistant
+              Open AI Assistant
             </Link>
             <Link className="secondary-action" to="/resources">
               Open resources
@@ -53,4 +53,3 @@ export default function FeatureDetailPage() {
     </div>
   );
 }
-

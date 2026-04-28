@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }) {
     return (
       <Navigate
         replace
-        state={{ from: location.pathname }}
+        state={{ from: `${location.pathname}${location.search}${location.hash}` }}
         to="/signin"
       />
     );
@@ -22,4 +22,3 @@ export default function ProtectedRoute({ children }) {
 
   return children;
 }
-

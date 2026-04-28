@@ -16,9 +16,15 @@ export default function ResultDisplay({ result, onReset }) {
   const { copy } = useLanguage();
 
   return (
-    <div className="result-panel">
-      <div className={`urgency-pill urgency-pill--${result.urgency}`}>
-        {getUrgencyLabel(result.urgency)}
+    <div className="result-panel result-panel--minimal">
+      <div className="result-topbar">
+        <div className={`urgency-pill urgency-pill--${result.urgency}`}>
+          {getUrgencyLabel(result.urgency)}
+        </div>
+
+        <button className="secondary-action secondary-action--compact" type="button" onClick={onReset}>
+          {copy.result.reset}
+        </button>
       </div>
 
       <section className="result-section">
@@ -114,11 +120,6 @@ export default function ResultDisplay({ result, onReset }) {
           </a>
         </section>
       ) : null}
-
-      <button className="secondary-action" type="button" onClick={onReset}>
-        {copy.result.reset}
-      </button>
     </div>
   );
 }
-

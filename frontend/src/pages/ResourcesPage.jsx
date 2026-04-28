@@ -46,14 +46,14 @@ export default function ResourcesPage() {
 
   return (
     <div className="page-stack page-stack--narrow">
-      <section className="page-hero">
+      <section className="page-hero page-hero--structured">
         <p className="eyebrow">Resources</p>
         <h1>{copy.resources.title}</h1>
         <p>{copy.resources.description}</p>
       </section>
 
       <section className="split-panel">
-        <article className="glass-panel">
+        <article className="glass-panel glass-panel--document">
           <h2>Sources</h2>
           <div className="resource-grid">
             {RESOURCE_SOURCES.map((item) => (
@@ -77,7 +77,7 @@ export default function ResourcesPage() {
           ) : null}
         </article>
 
-        <article className="glass-panel">
+        <article className="glass-panel glass-panel--document">
           <form className="assistant-form" onSubmit={handleSearch}>
             <label className="field">
               <span>{copy.common.search}</span>
@@ -140,4 +140,3 @@ export default function ResourcesPage() {
     </div>
   );
 }
-

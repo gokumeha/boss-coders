@@ -12,7 +12,7 @@ export default function AssistantPage() {
   const { user } = useAuth();
   const { language, setLanguage } = useLanguage();
   const form = useForm(language);
-  const { result, loading, error, submitLegalQuery, clearResult } = useApi();
+  const { result, loading, error, submitLegalQuery, clearResult, clearError } = useApi();
   const { items, loading: historyLoading } = useAssistantHistory(user);
 
   const historyItems = useMemo(() => items || [], [items]);
@@ -42,6 +42,7 @@ export default function AssistantPage() {
         historyItems={historyItems}
         historyLoading={historyLoading}
         loading={loading}
+        onFieldChange={clearError}
         onLanguageChange={setLanguage}
         onReset={handleReset}
         onSubmit={handleSubmit}
@@ -50,4 +51,3 @@ export default function AssistantPage() {
     </div>
   );
 }
-

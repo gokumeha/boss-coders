@@ -9,14 +9,22 @@ export default function Footer() {
         <div className="footer-brand">
           <div className="brand-mark brand-mark--footer">
             <span className="brand-icon">NS</span>
-            <span>
-              Nyaya<span className="brand-accent">Saathi</span>
+            <span className="brand-copy">
+              <strong className="brand-title">
+                Nyaya<span className="brand-accent">Saathi</span>
+              </strong>
+              <span className="brand-subtitle">Legal-tech guidance platform</span>
             </span>
           </div>
           <p>
             Guided legal navigation, structured intake, and research-aware next
-            steps for people who need clarity before they need a lawyer.
+            steps for people who need clarity before they need formal counsel.
           </p>
+          <div className="footer-trust-row">
+            <span className="trust-chip">Protected sign-in</span>
+            <span className="trust-chip">Public source pathways</span>
+            <span className="trust-chip">Structured case flow</span>
+          </div>
         </div>
 
         {FOOTER_SECTIONS.map((section) => (
@@ -32,10 +40,9 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <span>General legal information only, not formal legal advice.</span>
-        <span>Built for scalable legal access.</span>
+        <span>General legal information only. Not a substitute for formal legal advice.</span>
+        <span>Designed for trust, clarity, and scalable legal access.</span>
       </div>
     </footer>
   );
 }
-

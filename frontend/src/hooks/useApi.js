@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { validateLegalQueryPayload } from '@shared/legalContract';
 import { postLegalQuery } from '../services/api';
 
 export function useApi() {
@@ -11,6 +12,14 @@ export function useApi() {
     setLoading(true);
     setError('');
     setResult(null);
+
+    const validationError = validateLegalQueryPayload(payload);
+
+    if (validationError) {
+      setLoading(false);
+      setError(validationError);
+      throw new Error(validationError);
+    }
 
     if (import.meta.env.DEV) {
       console.log('[frontend] submitting legal query', payload);
@@ -37,12 +46,16 @@ export function useApi() {
     setError('');
   }
 
+  function clearError() {
+    setError('');
+  }
+
   return {
     result,
     loading,
     error,
     submitLegalQuery,
     clearResult,
+    clearError,
   };
 }
-
