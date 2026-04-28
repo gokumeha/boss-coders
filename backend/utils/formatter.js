@@ -9,6 +9,36 @@ function ensureString(value, fallback) {
 }
 
 export function formatLegalResponse(payload) {
+  if (payload.resultType === 'mismatch') {
+    return {
+      resultType: 'mismatch',
+      summary: ensureString(
+        payload.summary,
+        'This situation does not match the selected legal category.',
+      ),
+      message: ensureString(
+        payload.message,
+        'Please choose a better-matching legal category before generating guidance.',
+      ),
+      selectedCategory: ensureString(payload.selectedCategory, ''),
+      selectedCategoryTitle: ensureString(payload.selectedCategoryTitle, ''),
+      suggestedCategory: ensureString(payload.suggestedCategory, ''),
+      suggestedCategoryTitle: ensureString(payload.suggestedCategoryTitle, ''),
+      rights: '',
+      rightsList: [],
+      laws: [],
+      steps: [],
+      urgency: 'medium',
+      authority: '',
+      draft: '',
+      helplines: [],
+      research: {
+        indiankanoon: { status: 'unavailable', documents: [], message: '' },
+        ecourts: { status: 'unavailable', portalUrl: '', note: '', searchModes: [] },
+      },
+    };
+  }
+
   const rightsList = ensureArray(payload.rightsList, [
     'Ask for written acknowledgements and keep proof of every interaction.',
     'Approach the relevant public authority without waiting for informal promises.',
@@ -19,6 +49,7 @@ export function formatLegalResponse(payload) {
     : 'medium';
 
   return {
+    resultType: payload.resultType === 'guidance' ? 'guidance' : 'guidance',
     summary: ensureString(
       payload.summary,
       'This is a mock legal guidance response prepared by the backend service.',

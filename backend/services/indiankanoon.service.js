@@ -1,7 +1,14 @@
 const INDIAN_KANOON_BASE_URL = 'https://api.indiankanoon.org';
+const INDIAN_KANOON_PUBLIC_URL = 'https://indiankanoon.org';
 
 function getToken() {
   return process.env.IK_API_TOKEN || '';
+}
+
+function buildPublicSearchUrl(query) {
+  const url = new URL('/search/', INDIAN_KANOON_PUBLIC_URL);
+  url.searchParams.set('formInput', query);
+  return url.toString();
 }
 
 export function getIndianKanoonStatus() {
@@ -16,10 +23,12 @@ export async function searchIndianKanoon(query) {
 
   if (!token) {
     return {
-      status: 'unconfigured',
+      status: 'public-search-fallback',
       message:
-        'Indian Kanoon search is wired, but IK_API_TOKEN is not configured on the server yet.',
+        'Direct Indian Kanoon results are not configured on the server yet, so you can continue with the public Indian Kanoon search page.',
       documents: [],
+      portalUrl: buildPublicSearchUrl(query),
+      portalLabel: 'Open Indian Kanoon search',
     };
   }
 
@@ -37,10 +46,12 @@ export async function searchIndianKanoon(query) {
   if (!response.ok) {
     const body = await response.text();
     return {
-      status: 'error',
-      message: `Indian Kanoon request failed with ${response.status}.`,
+      status: 'public-search-fallback',
+      message: `Live Indian Kanoon API results were unavailable, so the public Indian Kanoon search page is ready instead.`,
       details: body.slice(0, 240),
       documents: [],
+      portalUrl: buildPublicSearchUrl(query),
+      portalLabel: 'Open Indian Kanoon search',
     };
   }
 
@@ -64,4 +75,3 @@ export async function searchIndianKanoon(query) {
     documents,
   };
 }
-

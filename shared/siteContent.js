@@ -8,12 +8,13 @@ export const PRIMARY_NAV_ITEMS = [
 export const HERO_METRICS = [
   { value: '40M+', label: 'People navigating delayed case systems' },
   { value: '7', label: 'Language options in the interface' },
-  { value: '2', label: 'Research pathways connected' },
+  { value: '6', label: 'Legal categories guided end-to-end' },
 ];
 
 export const FEATURES = [
   {
     id: 'guided-intake',
+    to: '/features/guided-intake',
     icon: 'CASE',
     title: 'Guided Intake',
     tagline: 'A calmer and more structured legal intake flow',
@@ -22,9 +23,33 @@ export const FEATURES = [
     details:
       'Users can move from uncertainty to a documented next step with cleaner progression, more context, and less cognitive friction.',
     highlights: ['Structured case flow', 'Lower cognitive load', 'Clear next-step guidance'],
+    spotlightTitle: 'Why guided intake matters',
+    spotlightParagraphs: [
+      'Many users arrive with stress, incomplete facts, and no idea which legal track even applies to them. Guided intake reduces that initial chaos by turning the first interaction into a sequence of manageable decisions.',
+      'Instead of asking users to understand the whole system at once, the platform helps them identify category, language, issue facts, and evidence context before any legal output is generated.',
+    ],
+    detailSections: [
+      {
+        title: 'Workflow design',
+        items: [
+          'Start with category-first routing before deeper legal guidance.',
+          'Capture the citizen narrative in plain language instead of legal jargon.',
+          'Show context, next steps, and research support in a predictable order.',
+        ],
+      },
+      {
+        title: 'What the user gets',
+        items: [
+          'A calmer path from confusion to a structured issue summary.',
+          'Better prompts for the AI layer because the facts are better framed.',
+          'Less chance of skipping key details such as documents, timeline, and relief sought.',
+        ],
+      },
+    ],
   },
   {
     id: 'multilingual-support',
+    to: '/features/multilingual-support',
     icon: 'LANG',
     title: 'Multilingual Support',
     tagline: 'Language preference now affects the real experience',
@@ -33,9 +58,33 @@ export const FEATURES = [
     details:
       'Preferences are persisted across the experience to make the workflow feel stable and consistent.',
     highlights: ['Persistent preference', 'Consistent interface copy', 'Shared state across routes'],
+    spotlightTitle: 'Why multilingual support matters',
+    spotlightParagraphs: [
+      'Legal confusion often gets worse when the interface itself feels foreign. Making language selection persistent helps users stay oriented while they move between categories, resources, and guidance views.',
+      'This feature is not just cosmetic. It affects navigation labels, workflow copy, and the expectation that the platform should remain understandable during a stressful legal task.',
+    ],
+    detailSections: [
+      {
+        title: 'Experience layer',
+        items: [
+          'The chosen language is stored and reused across route changes.',
+          'Navigation, assistant labels, and common actions stay consistent.',
+          'The system avoids making users re-select language on every step.',
+        ],
+      },
+      {
+        title: 'User impact',
+        items: [
+          'Lower drop-off caused by unfamiliar interface wording.',
+          'More confidence while filling longer legal narratives.',
+          'A stronger sense that the platform is built for first-generation legal users.',
+        ],
+      },
+    ],
   },
   {
     id: 'google-sign-in',
+    to: '/signin',
     icon: 'AUTH',
     title: 'Google Sign-In',
     tagline: 'Protected access with Firebase-backed identity',
@@ -44,9 +93,15 @@ export const FEATURES = [
     details:
       'Firebase Authentication manages the login flow while Firestore can store returning-user history without a custom auth backend.',
     highlights: ['Protected workspace', 'Google provider', 'Saved activity continuity'],
+    spotlightTitle: 'Protected sign-in entry',
+    spotlightParagraphs: [
+      'This card should work as an access point into the sign-in experience rather than as a generic feature article.',
+    ],
+    detailSections: [],
   },
   {
     id: 'legal-research',
+    to: '/features/legal-research',
     icon: 'LAW',
     title: 'Legal Research Layer',
     tagline: 'Answers connected to public legal pathways',
@@ -55,8 +110,35 @@ export const FEATURES = [
     details:
       'The backend keeps the provider boundary modular so future AI and source integrations can be added cleanly.',
     highlights: ['Indian Kanoon integration', 'eCourts pathways', 'Extensible backend services'],
+    spotlightTitle: 'Why research connectivity matters',
+    spotlightParagraphs: [
+      'Legal guidance becomes more useful when it can lead into public legal sources instead of ending as isolated text on the screen. This layer connects the advisory experience to actual research pathways.',
+      'It also creates room for growth: provider integrations can change over time without forcing the rest of the product to be redesigned around a single source.',
+    ],
+    detailSections: [
+      {
+        title: 'Connected sources',
+        items: [
+          'Indian Kanoon can be used for judgments, orders, and legal document discovery.',
+          'eCourts access provides an official path for case-status and public court lookup.',
+          'Fallback behaviors keep the user moving even when direct API access is limited.',
+        ],
+      },
+      {
+        title: 'Platform benefit',
+        items: [
+          'Guidance is easier to verify against public legal material.',
+          'The product avoids locking users into a purely black-box AI flow.',
+          'New research providers can be added later behind a stable backend interface.',
+        ],
+      },
+    ],
   },
 ];
+
+export function getFeatureDestination(feature) {
+  return feature?.to || `/features/${feature?.id || ''}`;
+}
 
 export const FEATURE_MAP = Object.fromEntries(
   FEATURES.map((feature) => [feature.id, feature]),
@@ -569,14 +651,49 @@ export const RESOURCE_SOURCES = [
   {
     id: 'indiankanoon',
     title: 'Indian Kanoon',
+    url: 'https://indiankanoon.org/',
     description:
-      'Search judgments, orders, and legal documents through the token-based backend integration layer.',
+      'Search judgments, orders, and legal documents through the connected service, with a public search fallback when direct server access is unavailable.',
   },
   {
     id: 'ecourts',
     title: 'eCourts India',
+    url: 'https://services.ecourts.gov.in/ecourtindia_v6/',
     description:
       'Use official public search pathways for case status and court access when a stable public API is unavailable.',
+  },
+];
+
+export const HOME_READING = [
+  {
+    id: 'property-registration',
+    source: 'The Indian Express',
+    publishedAt: 'November 8, 2025',
+    title: 'Supreme Court flags issues in property registration, says examine blockchain tech',
+    summary:
+      'A useful read on how registration disputes, title uncertainty, and record integrity continue to affect property litigation in India.',
+    url: 'https://indianexpress.com/article/legal-news/supreme-court-flags-issues-in-property-registration-says-examine-blockchain-tech-10352780/lite/',
+    visual: 'property',
+  },
+  {
+    id: 'gratuity-right',
+    source: 'The Indian Express',
+    publishedAt: 'January 6, 2026',
+    title: 'Right to gratuity statutory right: Andhra Pradesh High Court directs firm to pay employee',
+    summary:
+      'A labour-rights focused report on why gratuity is treated as a legal entitlement and not an optional employer payment.',
+    url: 'https://indianexpress.com/article/legal-news/right-to-gratuity-statutory-right-andhra-pradesh-high-court-directs-firm-to-pay-employee-10456747/',
+    visual: 'labour',
+  },
+  {
+    id: 'digital-arrest',
+    source: 'The Indian Express',
+    publishedAt: 'January 14, 2026',
+    title: 'Digital arrest crackdown: Centre forms multi-agency panel as Supreme Court set to hear the matter',
+    summary:
+      'A current cyber-law and fraud piece that shows how large-scale digital scams are being handled at a national level.',
+    url: 'https://indianexpress.com/article/legal-news/digital-arrest-crackdown-centre-forms-multi-agency-panel-as-supreme-court-set-to-hear-matter-today-10470319/',
+    visual: 'cyber',
   },
 ];
 

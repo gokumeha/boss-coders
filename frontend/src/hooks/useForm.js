@@ -5,8 +5,8 @@ import { SUPPORTED_LANGUAGES } from '@shared/siteContent';
 
 function buildSteps({ category, language, query, hasResult }) {
   const baseSteps = [
-    { label: 'Category', complete: Boolean(category) },
-    { label: 'Language', complete: Boolean(category) && Boolean(language) },
+    { label: 'Language', complete: Boolean(language) },
+    { label: 'Category', complete: Boolean(language) && Boolean(category) },
     {
       label: 'Describe',
       complete: Boolean(category) && Boolean(language) && Boolean(query.trim()),

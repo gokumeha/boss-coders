@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
   CATEGORIES,
@@ -172,6 +172,7 @@ function GuidanceCard({ guidance }) {
 
 export default function LegalChatbot() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { language, setLanguage } = useLanguage();
   const { loading, submitLegalQuery, clearError } = useApi();
@@ -190,6 +191,7 @@ export default function LegalChatbot() {
     () => CATEGORIES.find((item) => item.id === category),
     [category],
   );
+  const featuredPrompt = CHATBOT_SUGGESTED_PROMPTS[0];
 
   if (isHidden) {
     return null;
@@ -340,6 +342,42 @@ export default function LegalChatbot() {
             </select>
           </div>
 
+          <div className="chatbot-showcase">
+            <div className="chatbot-showcase__copy">
+              <span className="chatbot-suggestions-label">Rapid legal triage</span>
+              <strong>Start here for a quick first read, then jump into the full assistant if you want the deeper workflow.</strong>
+            </div>
+
+            <div className="chatbot-showcase__chips">
+              <span className="chatbot-showcase__chip">Auto-detect category</span>
+              <span className="chatbot-showcase__chip">Draft next steps</span>
+              <span className="chatbot-showcase__chip">Source-backed guidance</span>
+            </div>
+
+            <div className="chatbot-showcase__actions">
+              <button
+                className="secondary-action secondary-action--compact"
+                onClick={() => {
+                  setOpen(false);
+                  navigate('/assistant');
+                }}
+                type="button"
+              >
+                Open full workspace
+              </button>
+              <button
+                className="secondary-action secondary-action--compact"
+                onClick={() => {
+                  clearError();
+                  setQuery(featuredPrompt);
+                }}
+                type="button"
+              >
+                Load demo issue
+              </button>
+            </div>
+          </div>
+
           <div className="chatbot-suggestions-wrap">
             <span className="chatbot-suggestions-label">Try an example</span>
             <div className="chatbot-suggestions">
@@ -374,6 +412,18 @@ export default function LegalChatbot() {
                 {message.guidance ? <GuidanceCard guidance={message.guidance} /> : null}
               </article>
             ))}
+
+            {loading ? (
+              <article className="chat-message chat-message--assistant chat-message--loading">
+                <span className="chat-message__label">Guide</span>
+                <p>Reviewing Indian law for your situation...</p>
+                <div className="chat-loading-dots" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+              </article>
+            ) : null}
           </div>
 
           <form className="chatbot-composer" onSubmit={handleSubmit}>
@@ -397,7 +447,7 @@ export default function LegalChatbot() {
                   : 'Category will be detected from your question when possible.'}
               </span>
               <button className="primary-action" disabled={loading || !query.trim()} type="submit">
-                {loading ? 'Thinking...' : 'Ask legal guide'}
+                {loading ? 'Reviewing your situation...' : 'Ask legal guide'}
               </button>
             </div>
           </form>

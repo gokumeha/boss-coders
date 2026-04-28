@@ -1,10 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 import {
+  analyzeCategoryFit,
   analyzeLegalQuery,
   getLegalQueryGuidanceMessage,
 } from '../../shared/legalContract.js';
-import { LEGAL_CATEGORY_MAP } from '../../shared/siteContent.js';
+import { CATEGORIES, LEGAL_CATEGORY_MAP } from '../../shared/siteContent.js';
 import { formatLegalResponse } from '../utils/formatter.js';
 
 let geminiModel = null;
@@ -24,10 +25,53 @@ function getGeminiModel() {
   return geminiModel;
 }
 
-function buildPrompt({ categoryTitle, language, query }) {
+function parseModelJson(rawText) {
+  const jsonText = rawText
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/, '')
+    .trim();
+
+  try {
+    return JSON.parse(jsonText);
+  } catch {
+    console.error('[gemini] Could not parse model response:', rawText.slice(0, 200));
+    return null;
+  }
+}
+
+function buildCategoryValidationPrompt({ selectedCategory, query }) {
+  const categoryOptions = CATEGORIES.map(
+    (category) => `${category.id}: ${category.title} (${category.shortDescription})`,
+  ).join('\n');
+
+  return `You are classifying an Indian legal narrative into the single best legal category.
+
+Selected category: ${selectedCategory}
+
+Available categories:
+${categoryOptions}
+
+Citizen narrative: "${query}"
+
+Respond with valid JSON only:
+{
+  "matchesSelectedCategory": true,
+  "bestCategoryId": "property|labour|consumer|domestic|police|cyber",
+  "reason": "one short explanation"
+}
+
+Rules:
+- Choose the single best category for the core grievance.
+- Mark matchesSelectedCategory false if the selected category is not the best fit.
+- Focus on the main dispute, not incidental words.
+- Do not add markdown or extra text.`;
+}
+
+function buildPrompt({ categoryId, categoryTitle, language, query }) {
   return `You are NyayaSaathi, an Indian legal guidance assistant.
 You must answer only about real legal situations from India.
 
+Selected category id: ${categoryId}
 Category: ${categoryTitle}
 Language: ${language}
 Citizen query: "${query}"
@@ -43,34 +87,49 @@ Otherwise respond with valid JSON only using this shape:
   "steps": ["step 1", "step 2", "step 3", "step 4"],
   "urgency": "low|medium|high",
   "authority": "best authority to approach first",
-  "draft": "short formal complaint draft",
+  "draft": "formal complaint draft written in first person from the victim or complainant point of view",
   "helplines": [{"name":"name","number":"number or website"}]
 }
 
-Keep the answer specific, practical, and grounded in Indian legal context.`;
+Rules:
+- Stay strictly within the selected category.
+- Write the complaint draft in first person using "I" and "my".
+- The draft should sound like the affected person is submitting it.
+- Keep the answer specific, practical, and grounded in Indian legal context.`;
 }
 
-async function getLegalGuidanceFromGemini({ categoryTitle, language, query }) {
+async function getCategoryDecisionFromGemini({ selectedCategory, query }) {
   const model = getGeminiModel();
   if (!model) {
     return null;
   }
 
   const result = await model.generateContent(
-    buildPrompt({ categoryTitle, language, query }),
+    buildCategoryValidationPrompt({ selectedCategory, query }),
   );
   const rawText = result.response.text().trim();
-  const jsonText = rawText
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```$/, '')
-    .trim();
+  const parsed = parseModelJson(rawText);
 
-  let parsed;
+  if (!parsed || !parsed.bestCategoryId) {
+    return null;
+  }
 
-  try {
-    parsed = JSON.parse(jsonText);
-  } catch {
-    console.error('[gemini] Could not parse model response:', rawText.slice(0, 200));
+  return parsed;
+}
+
+async function getLegalGuidanceFromGemini({ categoryId, categoryTitle, language, query }) {
+  const model = getGeminiModel();
+  if (!model) {
+    return null;
+  }
+
+  const result = await model.generateContent(
+    buildPrompt({ categoryId, categoryTitle, language, query }),
+  );
+  const rawText = result.response.text().trim();
+  const parsed = parseModelJson(rawText);
+
+  if (!parsed) {
     return null;
   }
 
@@ -255,10 +314,10 @@ ${LANGUAGE_INTROS[language] || LANGUAGE_INTROS.English}
 
 Respected Sir/Madam,
 
-I am submitting this complaint regarding the following issue:
+I am writing to submit this complaint regarding the following issue affecting me:
 ${shortFacts}
 
-I request that the matter be reviewed and that appropriate legal action or administrative support be provided at the earliest.
+I request that my complaint be reviewed and that appropriate legal action or administrative support be provided at the earliest.
 
 Please acknowledge receipt of this complaint and inform me of the next steps.
 
@@ -282,6 +341,21 @@ function getMockGuidance({ category, language, query }) {
   };
 }
 
+function buildMismatchResponse({ selectedCategory, suggestedCategory, reason }) {
+  const selectedTitle = LEGAL_CATEGORY_MAP[selectedCategory]?.title || selectedCategory;
+  const suggestedTitle = LEGAL_CATEGORY_MAP[suggestedCategory]?.title || suggestedCategory;
+
+  return {
+    resultType: 'mismatch',
+    selectedCategory,
+    selectedCategoryTitle: selectedTitle,
+    suggestedCategory,
+    suggestedCategoryTitle: suggestedTitle,
+    summary: `This situation does not appear to match the selected category: ${selectedTitle}.`,
+    message: `${reason} The facts appear to fit ${suggestedTitle} better.`,
+  };
+}
+
 export async function getLegalGuidance({ category, language, query }) {
   const categoryTitle = LEGAL_CATEGORY_MAP[category]?.title || 'Legal Issue';
   const isDev = process.env.NODE_ENV !== 'production';
@@ -296,8 +370,51 @@ export async function getLegalGuidance({ category, language, query }) {
     throw error;
   }
 
+  const heuristicCategoryFit = analyzeCategoryFit(query, category);
+  let geminiCategoryDecision = null;
+
+  try {
+    geminiCategoryDecision = await getCategoryDecisionFromGemini({
+      selectedCategory: category,
+      query,
+    });
+
+    if (
+      geminiCategoryDecision &&
+      geminiCategoryDecision.matchesSelectedCategory === false &&
+      geminiCategoryDecision.bestCategoryId &&
+      geminiCategoryDecision.bestCategoryId !== category
+    ) {
+      return buildMismatchResponse({
+        selectedCategory: category,
+        suggestedCategory: geminiCategoryDecision.bestCategoryId,
+        reason:
+          geminiCategoryDecision.reason ||
+          'The main grievance in the paragraph points to a different legal category.',
+      });
+    }
+  } catch (error) {
+    console.error('[gemini] Category validation error, falling back to heuristic:', error.message);
+  }
+
+  if (
+    !geminiCategoryDecision &&
+    heuristicCategoryFit.hasDetectedCategory &&
+    !heuristicCategoryFit.isMatch &&
+    heuristicCategoryFit.bestCategory &&
+    heuristicCategoryFit.bestCategory !== category
+  ) {
+    return buildMismatchResponse({
+      selectedCategory: category,
+      suggestedCategory: heuristicCategoryFit.bestCategory,
+      reason:
+        'The main issue described in the paragraph points to another legal category based on the facts provided.',
+    });
+  }
+
   try {
     const geminiResult = await getLegalGuidanceFromGemini({
+      categoryId: category,
       categoryTitle,
       language,
       query,
@@ -309,6 +426,7 @@ export async function getLegalGuidance({ category, language, query }) {
       }
 
       return formatLegalResponse({
+        resultType: 'guidance',
         ...geminiResult,
         rights: Array.isArray(geminiResult.rightsList)
           ? geminiResult.rightsList.join(' ')
@@ -327,5 +445,8 @@ export async function getLegalGuidance({ category, language, query }) {
     console.log('[mock-ai] Generating fallback response for category:', category);
   }
 
-  return formatLegalResponse(getMockGuidance({ category, language, query }));
+  return formatLegalResponse({
+    resultType: 'guidance',
+    ...getMockGuidance({ category, language, query }),
+  });
 }

@@ -10,6 +10,7 @@ import {
 import Footer from './components/Footer';
 import LegalChatbot from './components/LegalChatbot';
 import Navbar from './components/Navbar';
+import ScrollRevealController from './components/ScrollRevealController';
 
 const Home = lazy(() => import('./pages/Home'));
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage'));
@@ -24,6 +25,7 @@ function AppShell() {
   return (
     <div className="app-frame">
       <Navbar />
+      <ScrollRevealController />
       <main className="app-main">
         <Outlet />
       </main>

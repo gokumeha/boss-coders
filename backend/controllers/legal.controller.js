@@ -12,8 +12,14 @@ export async function postLegalQuery(request, response, next) {
       return;
     }
 
-    const [legalGuidance, indianKanoon, ecourts] = await Promise.all([
-      getLegalGuidance(request.body),
+    const legalGuidance = await getLegalGuidance(request.body);
+
+    if (legalGuidance.resultType === 'mismatch') {
+      response.status(200).json(legalGuidance);
+      return;
+    }
+
+    const [indianKanoon, ecourts] = await Promise.all([
       searchIndianKanoon(request.body.query),
       buildEcourtsSupport(request.body.query),
     ]);

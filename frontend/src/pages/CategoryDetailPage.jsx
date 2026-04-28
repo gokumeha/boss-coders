@@ -21,7 +21,7 @@ export default function CategoryDetailPage() {
 
   return (
     <div className="page-stack page-stack--narrow">
-      <section className="page-hero page-hero--structured">
+      <section className="page-hero page-hero--structured scroll-reveal-target">
         <p className="eyebrow">Category detail</p>
         <h1>{category.title}</h1>
         <p>{category.description}</p>
@@ -34,8 +34,8 @@ export default function CategoryDetailPage() {
         </div>
       </section>
 
-      <section className="split-panel split-panel--balanced">
-        <article className="glass-panel glass-panel--document category-article">
+      <section className="split-panel split-panel--balanced scroll-reveal-target">
+        <article className="glass-panel glass-panel--document category-article scroll-reveal-target">
           <div className="section-heading section-heading--compact">
             <p className="eyebrow">Editorial Brief</p>
             <h2>How this category usually unfolds</h2>
@@ -46,7 +46,7 @@ export default function CategoryDetailPage() {
           ))}
         </article>
 
-        <aside className="glass-panel glass-panel--document category-context-card">
+        <aside className="glass-panel glass-panel--document category-context-card scroll-reveal-target">
           <span className="category-context-card__mark">
             {category.id.slice(0, 4).toUpperCase()}
           </span>
@@ -59,7 +59,7 @@ export default function CategoryDetailPage() {
         </aside>
       </section>
 
-      <section className="section-block section-block--tight">
+      <section className="section-block section-block--tight scroll-reveal-target">
         <div className="section-heading section-heading--split">
           <div>
             <p className="eyebrow">Relevant Law</p>
@@ -77,7 +77,7 @@ export default function CategoryDetailPage() {
         </div>
       </section>
 
-      <section className="section-block section-block--tight">
+      <section className="section-block section-block--tight scroll-reveal-target">
         <div className="section-heading section-heading--split">
           <div>
             <p className="eyebrow">Indian Cases</p>
@@ -96,7 +96,7 @@ export default function CategoryDetailPage() {
         </div>
       </section>
 
-      <section className="section-block section-block--tight">
+      <section className="section-block section-block--tight scroll-reveal-target">
         <div className="section-heading section-heading--split">
           <div>
             <p className="eyebrow">Recent Reporting</p>
@@ -127,8 +127,8 @@ export default function CategoryDetailPage() {
         </div>
       </section>
 
-      <section className="split-panel">
-        <article className="glass-panel glass-panel--document">
+      <section className="split-panel scroll-reveal-target">
+        <article className="glass-panel glass-panel--document scroll-reveal-target">
           <h2>Typical next steps</h2>
           <ul className="plain-list">
             {category.nextSteps.map((step) => (
@@ -137,7 +137,7 @@ export default function CategoryDetailPage() {
           </ul>
         </article>
 
-        <article className="glass-panel glass-panel--document">
+        <article className="glass-panel glass-panel--document scroll-reveal-target">
           <h2>Continue the journey</h2>
           <p>
             Open the AI assistant for this legal category, then validate your

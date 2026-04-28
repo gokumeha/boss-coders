@@ -41,14 +41,14 @@ export default function SignInPage() {
     <div className="page-stack auth-page">
       <section className="auth-shell">
         <div className="sign-in-panel sign-in-panel--redesigned">
-          <p className="eyebrow">Protected Google Sign-In</p>
+          <p className="eyebrow">{copy.signIn.eyebrow}</p>
           <h1>{copy.signIn.title}</h1>
           <p>{copy.signIn.description}</p>
 
           <div className="trust-chip-row">
-            <span className="trust-chip">Protected access</span>
-            <span className="trust-chip">Saved legal activity</span>
-            <span className="trust-chip">Research-backed guidance</span>
+            {copy.signIn.chips.map((chip) => (
+              <span className="trust-chip" key={chip}>{chip}</span>
+            ))}
           </div>
 
           {!isFirebaseConfigured ? (
@@ -69,11 +69,11 @@ export default function SignInPage() {
             onClick={handleGoogleSignIn}
           >
             <span className="action-mark">G</span>
-            {loading ? 'Opening Google...' : copy.common.continueWithGoogle}
+            {loading ? copy.signIn.loadingGoogle : copy.common.continueWithGoogle}
           </button>
 
           <div className="auth-support-note">
-            Use one verified Google account to continue into the protected legal workspace.
+            {copy.signIn.supportNote}
           </div>
         </div>
 

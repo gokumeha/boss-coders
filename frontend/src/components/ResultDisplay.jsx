@@ -1,25 +1,67 @@
+import AssistantActionStudio from './AssistantActionStudio';
 import { useLanguage } from '../context/LanguageContext';
 
-function getUrgencyLabel(urgency) {
+function getUrgencyLabel(urgency, copy) {
   if (urgency === 'high') {
-    return 'High urgency';
+    return copy.resultMeta.highUrgency;
   }
 
   if (urgency === 'low') {
-    return 'Low urgency';
+    return copy.resultMeta.lowUrgency;
   }
 
-  return 'Medium urgency';
+  return copy.resultMeta.mediumUrgency;
 }
 
-export default function ResultDisplay({ result, onReset }) {
+export default function ResultDisplay({
+  result,
+  submittedCase,
+  onApplySuggestedCategory,
+  onReset,
+}) {
   const { copy } = useLanguage();
 
+  if (result.resultType === 'mismatch') {
+    return (
+      <div className="result-panel result-panel--minimal result-panel--warning iridescent-panel">
+        <div className="result-topbar">
+          <div className="urgency-pill urgency-pill--medium">{copy.resultMeta.mismatchBadge}</div>
+
+          <button className="secondary-action secondary-action--compact" type="button" onClick={onReset}>
+            {copy.result.reset}
+          </button>
+        </div>
+
+        <section className="result-section">
+          <h3>{copy.resultMeta.mismatchTitle}</h3>
+          <p>{result.summary}</p>
+          <div className="info-surface">
+            <strong>{copy.resultMeta.bestFitCategory}</strong>
+            <p>{result.suggestedCategoryTitle || copy.resultMeta.chooseCloserCategory}</p>
+            <p>{result.message}</p>
+          </div>
+        </section>
+
+        {result.suggestedCategory ? (
+          <div className="panel-actions">
+            <button
+              className="primary-action"
+              type="button"
+              onClick={() => onApplySuggestedCategory?.(result.suggestedCategory)}
+            >
+              {copy.resultMeta.switchTo} {result.suggestedCategoryTitle}
+            </button>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
-    <div className="result-panel result-panel--minimal">
+    <div className="result-panel result-panel--minimal iridescent-panel">
       <div className="result-topbar">
         <div className={`urgency-pill urgency-pill--${result.urgency}`}>
-          {getUrgencyLabel(result.urgency)}
+          {getUrgencyLabel(result.urgency, copy)}
         </div>
 
         <button className="secondary-action secondary-action--compact" type="button" onClick={onReset}>
@@ -63,10 +105,7 @@ export default function ResultDisplay({ result, onReset }) {
         </ol>
       </section>
 
-      <section className="result-section">
-        <h3>{copy.result.draft}</h3>
-        <pre className="draft-box">{result.draft}</pre>
-      </section>
+      <AssistantActionStudio result={result} submittedCase={submittedCase} />
 
       <section className="result-section">
         <h3>{copy.result.authority}</h3>

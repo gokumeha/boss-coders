@@ -1,4 +1,4 @@
-import { CATEGORIES, SUPPORTED_LANGUAGES } from './siteContent.js';
+import { CATEGORIES, LEGAL_CATEGORY_MAP, SUPPORTED_LANGUAGES } from './siteContent.js';
 
 export const MAX_QUERY_LENGTH = 1200;
 export const URGENCY_LEVELS = ['low', 'medium', 'high'];
@@ -12,6 +12,9 @@ const CATEGORY_KEYWORDS = {
     'tenant',
     'landlord',
     'deposit',
+    'builder',
+    'registry',
+    'registration',
     'eviction',
     'lease',
     'flat',
@@ -30,6 +33,12 @@ const CATEGORY_KEYWORDS = {
     'employer',
     'company',
     'job',
+    'worker',
+    'factory',
+    'shift',
+    'overtime',
+    'labour',
+    'employment',
     'office',
     'termination',
     'terminated',
@@ -239,6 +248,10 @@ function countMatches(tokens, keywords) {
   );
 }
 
+function getCategoryKeywordScore(tokens, categoryId) {
+  return countMatches(tokens, CATEGORY_KEYWORDS[categoryId] || []);
+}
+
 export function inferLegalCategory(query = '') {
   const tokens = normalizedTokens(query);
   let bestCategory = '';
@@ -254,6 +267,44 @@ export function inferLegalCategory(query = '') {
   });
 
   return bestScore > 0 ? bestCategory : '';
+}
+
+export function analyzeCategoryFit(query = '', selectedCategory = '') {
+  const trimmed = typeof query === 'string' ? query.trim() : '';
+  const tokens = normalizedTokens(trimmed);
+  const selectedScore = selectedCategory
+    ? getCategoryKeywordScore(tokens, selectedCategory)
+    : 0;
+
+  let bestCategory = '';
+  let bestScore = 0;
+
+  Object.keys(CATEGORY_KEYWORDS).forEach((categoryId) => {
+    const score = getCategoryKeywordScore(tokens, categoryId);
+
+    if (score > bestScore) {
+      bestCategory = categoryId;
+      bestScore = score;
+    }
+  });
+
+  const hasDetectedCategory = Boolean(bestCategory && bestScore > 0);
+  const isMatch =
+    !selectedCategory ||
+    !hasDetectedCategory ||
+    selectedCategory === bestCategory ||
+    (selectedScore > 0 && bestScore - selectedScore <= 1);
+
+  return {
+    selectedCategory,
+    selectedScore,
+    bestCategory,
+    bestScore,
+    isMatch,
+    hasDetectedCategory,
+    suggestedCategoryTitle: LEGAL_CATEGORY_MAP[bestCategory]?.title || '',
+    selectedCategoryTitle: LEGAL_CATEGORY_MAP[selectedCategory]?.title || '',
+  };
 }
 
 export function analyzeLegalQuery(query = '') {
