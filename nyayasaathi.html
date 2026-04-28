@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NyayaSaathi – Free AI Legal Aid for Every Indian</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#faf8f3;
+  --ivory:#f4f0e6;
+  --sand:#e8dfc8;
+  --gold:#b8860b;
+  --gold2:#d4a520;
+  --gold3:#f0c040;
+  --navy:#1a2744;
+  --navy2:#0f1a35;
+  --text:#2c2c3a;
+  --muted:#7a7888;
+  --white:#ffffff;
+  --red:#c0392b;
+  --green:#1e7a4a;
+  --blue:#1a4a8a;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);overflow-x:hidden}
+
+/* ─── CANVAS ─── */
+#hero-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* ─── NAV ─── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(250,248,243,0.88);backdrop-filter:blur(18px);border-bottom:1px solid rgba(184,134,11,0.12);transition:all 0.3s}
+.nav-logo{display:flex;align-items:center;gap:12px}
+.nav-logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--gold),var(--navy));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:white;box-shadow:0 4px 16px rgba(184,134,11,0.3)}
+.nav-logo-text{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--navy)}
+.nav-logo-text span{color:var(--gold)}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:var(--navy)}
+.nav-cta{background:var(--navy);color:white;border:none;padding:10px 24px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.nav-cta:hover{background:var(--gold);transform:translateY(-1px)}
+
+/* ─── HERO ─── */
+#hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;background:linear-gradient(160deg,#faf8f3 0%,#f0ead8 40%,#e8dfc8 100%)}
+.hero-content{position:relative;z-index:2;max-width:680px;padding:120px 60px 80px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(184,134,11,0.1);border:1px solid rgba(184,134,11,0.3);color:var(--gold);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:7px 18px;border-radius:100px;margin-bottom:28px;animation:fadeUp 0.8s ease both}
+.hero-h1{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,6vw,5.2rem);font-weight:700;line-height:1.1;color:var(--navy);margin-bottom:20px;animation:fadeUp 0.8s 0.1s ease both}
+.hero-h1 em{color:var(--gold);font-style:italic}
+.hero-p{font-size:1.1rem;font-weight:300;color:var(--muted);line-height:1.75;margin-bottom:40px;max-width:520px;animation:fadeUp 0.8s 0.2s ease both}
+.hero-btns{display:flex;gap:16px;flex-wrap:wrap;animation:fadeUp 0.8s 0.3s ease both}
+.btn-hero-primary{background:linear-gradient(135deg,var(--navy),#2a3d6e);color:white;border:none;padding:16px 36px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:all 0.3s;box-shadow:0 8px 32px rgba(26,39,68,0.25)}
+.btn-hero-primary:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(26,39,68,0.35)}
+.btn-hero-ghost{background:transparent;color:var(--navy);border:2px solid rgba(26,39,68,0.2);padding:14px 32px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:all 0.3s}
+.btn-hero-ghost:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
+.hero-stats{display:flex;gap:48px;margin-top:56px;animation:fadeUp 0.8s 0.4s ease both}
+.stat-item{text-align:left}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--navy)}
+.stat-num span{color:var(--gold)}
+.stat-label{font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
+.hero-3d-side{position:absolute;right:0;top:0;bottom:0;width:50%;z-index:1}
+#scene-canvas{width:100%;height:100%;display:block}
+.hero-scroll-hint{position:absolute;bottom:30px;left:60px;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;font-weight:500;z-index:2;animation:fadeUp 1s 0.8s ease both}
+.scroll-line{width:40px;height:1px;background:var(--gold);opacity:0.5}
+
+/* ─── SECTION COMMONS ─── */
+section{padding:100px 60px}
+.section-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:16px}
+.section-sub{font-size:1rem;color:var(--muted);font-weight:300;max-width:560px;line-height:1.7;margin-bottom:60px}
+.container{max-width:1200px;margin:0 auto}
+
+/* ─── HOW IT WORKS ─── */
+#how{background:var(--white)}
+.steps-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.steps-flow::before{content:'';position:absolute;top:52px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--gold) 0%,var(--navy) 100%);opacity:0.2;z-index:0}
+.step-card{position:relative;z-index:1;padding:20px;text-align:center}
+.step-icon-wrap{width:104px;height:104px;border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;position:relative;transition:transform 0.4s}
+.step-icon-wrap::before{content:'';position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(var(--gold),var(--navy),var(--gold));z-index:-1;animation:spin-slow 6s linear infinite}
+.step-icon-wrap::after{content:'';position:absolute;inset:-1px;border-radius:50%;background:var(--white)}
+.step-icon-inner{position:relative;z-index:1;width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem}
+.s1{background:linear-gradient(135deg,#fff8e1,#ffe082)}
+.s2{background:linear-gradient(135deg,#e8f5e9,#a5d6a7)}
+.s3{background:linear-gradient(135deg,#e3f2fd,#90caf9)}
+.s4{background:linear-gradient(135deg,#fce4ec,#f48fb1)}
+.step-num{position:absolute;top:-6px;right:-6px;width:28px;height:28px;background:var(--navy);color:white;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2}
+.step-title{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:8px}
+.step-desc{font-size:0.875rem;color:var(--muted);line-height:1.6}
+.step-card:hover .step-icon-wrap{transform:translateY(-6px) scale(1.05)}
+
+@keyframes spin-slow{to{transform:rotate(360deg)}}
+
+/* ─── FEATURES ─── */
+#features{background:linear-gradient(160deg,#faf8f3,#f0ead8)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.feat-card{background:white;border-radius:20px;padding:32px;border:1px solid rgba(184,134,11,0.1);transition:all 0.35s;position:relative;overflow:hidden}
+.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--navy));opacity:0;transition:opacity 0.3s}
+.feat-card:hover::before{opacity:1}
+.feat-card:hover{transform:translateY(-6px);box-shadow:0 24px 64px rgba(26,39,68,0.1)}
+.feat-icon{font-size:2.4rem;margin-bottom:18px;display:block}
+.feat-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--navy);margin-bottom:8px}
+.feat-desc{font-size:0.9rem;color:var(--muted);line-height:1.65}
+.feat-tag{display:inline-block;background:rgba(184,134,11,0.08);color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-top:16px}
+
+/* ─── APP ─── */
+#app{background:white}
+.app-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.app-left{position:sticky;top:120px}
+.app-right{}
+
+/* LANG */
+.lang-section{margin-bottom:32px}
+.lang-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.lang-pills{display:flex;gap:8px;flex-wrap:wrap}
+.lang-pill{padding:7px 18px;border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;border:1.5px solid rgba(26,39,68,0.12);background:var(--cream);color:var(--muted)}
+.lang-pill.active,.lang-pill:hover{background:var(--navy);color:white;border-color:var(--navy)}
+
+/* CATEGORY */
+.cat-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px}
+.cat-card{background:var(--cream);border:1.5px solid rgba(26,39,68,0.08);border-radius:14px;padding:16px 14px;cursor:pointer;transition:all 0.25s;display:flex;align-items:flex-start;gap:12px}
+.cat-card:hover{border-color:var(--gold);background:rgba(184,134,11,0.05);transform:translateY(-2px)}
+.cat-card.sel{border-color:var(--navy);background:rgba(26,39,68,0.04);box-shadow:0 0 0 3px rgba(26,39,68,0.06)}
+.cat-card .ci{font-size:1.5rem;flex-shrink:0;margin-top:1px}
+.cat-card .ct{font-size:0.9rem;font-weight:600;color:var(--navy)}
+.cat-card .cd{font-size:0.78rem;color:var(--muted);line-height:1.4;margin-top:2px}
+
+/* TEXTAREA */
+.input-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+textarea#query{width:100%;background:var(--cream);border:1.5px solid rgba(26,39,68,0.1);border-radius:14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:0.95rem;padding:18px 20px;resize:none;outline:none;transition:border-color 0.2s;min-height:140px;line-height:1.65}
+textarea#query::placeholder{color:var(--muted)}
+textarea#query:focus{border-color:var(--gold)}
+.char-ct{font-size:12px;color:var(--muted);text-align:right;margin-top:6px;margin-bottom:20px}
+
+.btn-submit{width:100%;background:linear-gradient(135deg,var(--navy),#2a3d6e);color:white;border:none;padding:17px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s;box-shadow:0 6px 24px rgba(26,39,68,0.2)}
+.btn-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 40px rgba(26,39,68,0.3)}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed}
+
+/* RESULT */
+.result-wrap{background:var(--cream);border:1.5px solid rgba(184,134,11,0.15);border-radius:20px;padding:32px;margin-top:28px;animation:fadeUp 0.5s ease both}
+.urg-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:100px;font-size:12px;font-weight:700;margin-bottom:24px;border:1.5px solid}
+.r-section{margin-bottom:24px}
+.r-head{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.r-head::after{content:'';flex:1;height:1px;background:rgba(184,134,11,0.2)}
+.r-text{font-size:0.92rem;color:var(--text);line-height:1.7}
+.r-pills{display:flex;flex-wrap:wrap;gap:8px}
+.r-pill{background:white;border:1px solid rgba(26,39,68,0.1);color:var(--navy);font-size:0.82rem;font-weight:500;padding:5px 14px;border-radius:100px}
+.r-pill.gold{background:rgba(184,134,11,0.08);border-color:rgba(184,134,11,0.2);color:var(--gold)}
+.steps-ol{list-style:none;counter-reset:sc}
+.steps-ol li{counter-increment:sc;display:flex;gap:14px;align-items:flex-start;padding:11px 0;border-bottom:1px solid rgba(26,39,68,0.06);font-size:0.9rem;color:var(--text);line-height:1.55}
+.steps-ol li:last-child{border:none}
+.steps-ol li::before{content:counter(sc);min-width:26px;height:26px;background:var(--navy);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.draft-box{background:white;border:1px solid rgba(26,39,68,0.1);border-radius:12px;padding:18px;font-size:0.85rem;line-height:1.85;color:var(--muted);white-space:pre-wrap;max-height:220px;overflow-y:auto;position:relative}
+.copy-btn{background:var(--navy);color:white;border:none;font-size:12px;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;margin-top:10px;transition:background 0.2s}
+.copy-btn:hover{background:var(--gold)}
+.auth-box{background:rgba(26,39,68,0.04);border:1px solid rgba(26,39,68,0.1);border-radius:12px;padding:16px 18px;font-size:0.9rem;color:var(--navy);line-height:1.6}
+.hl-list{display:flex;flex-wrap:wrap;gap:10px}
+.hl-card{background:white;border:1px solid rgba(26,39,68,0.08);border-radius:10px;padding:10px 16px}
+.hl-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:3px}
+.hl-num{font-size:0.9rem;font-weight:700;color:var(--navy)}
+.err-box{background:rgba(192,57,43,0.06);border:1px solid rgba(192,57,43,0.2);border-radius:10px;padding:14px;color:var(--red);font-size:0.9rem;text-align:center;margin-bottom:16px}
+.loading-box{text-align:center;padding:48px 0}
+.loader{width:52px;height:52px;border-radius:50%;border:3px solid rgba(26,39,68,0.1);border-top-color:var(--navy);animation:spin 0.8s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-t{font-size:0.95rem;color:var(--navy);font-weight:600}
+.loading-s{font-size:0.82rem;color:var(--muted);margin-top:6px}
+
+/* STEP INDICATOR */
+.step-ind{display:flex;align-items:center;margin-bottom:32px;gap:0}
+.si{display:flex;align-items:center;gap:10px}
+.si-circle{width:30px;height:30px;border-radius:50%;border:2px solid rgba(26,39,68,0.15);color:var(--muted);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;background:white;transition:all 0.3s}
+.si-circle.act{border-color:var(--navy);color:white;background:var(--navy)}
+.si-circle.done{border-color:var(--green);color:white;background:var(--green)}
+.si-label{font-size:12px;color:var(--muted);font-weight:500;transition:color 0.3s}
+.si-label.act{color:var(--navy);font-weight:600}
+.si-line{width:40px;height:1px;background:rgba(26,39,68,0.1);margin:0 10px}
+
+/* ─── CATEGORIES SECTION ─── */
+#categories{background:linear-gradient(160deg,#f0ead8,#faf8f3)}
+.cats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.big-cat{border-radius:20px;padding:36px 28px;cursor:pointer;transition:all 0.35s;position:relative;overflow:hidden;border:1.5px solid transparent}
+.big-cat:nth-child(1){background:linear-gradient(135deg,#fff8e1,#ffe082)}
+.big-cat:nth-child(2){background:linear-gradient(135deg,#e8f5e9,#c8e6c9)}
+.big-cat:nth-child(3){background:linear-gradient(135deg,#e3f2fd,#bbdefb)}
+.big-cat:nth-child(4){background:linear-gradient(135deg,#fce4ec,#f8bbd0)}
+.big-cat:nth-child(5){background:linear-gradient(135deg,#ede7f6,#d1c4e9)}
+.big-cat:nth-child(6){background:linear-gradient(135deg,#e0f2f1,#b2dfdb)}
+.big-cat:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(26,39,68,0.12);border-color:rgba(26,39,68,0.15)}
+.big-cat-icon{font-size:3rem;margin-bottom:18px;display:block;transition:transform 0.4s}
+.big-cat:hover .big-cat-icon{transform:scale(1.15) rotate(-5deg)}
+.big-cat-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--navy);margin-bottom:8px}
+.big-cat-desc{font-size:0.88rem;color:var(--muted);line-height:1.55}
+.big-cat-arrow{position:absolute;top:28px;right:28px;width:36px;height:36px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--navy);font-size:16px;opacity:0;transform:translateX(10px);transition:all 0.3s}
+.big-cat:hover .big-cat-arrow{opacity:1;transform:translateX(0)}
+
+/* ─── TESTIMONIALS ─── */
+#testimonials{background:var(--navy);color:white}
+#testimonials .section-title{color:white}
+#testimonials .section-sub{color:rgba(255,255,255,0.55)}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.testi-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;transition:all 0.35s}
+.testi-card:hover{background:rgba(255,255,255,0.1);transform:translateY(-4px)}
+.testi-quote{font-size:2.5rem;color:var(--gold3);line-height:1;margin-bottom:16px}
+.testi-text{font-size:0.95rem;color:rgba(255,255,255,0.75);line-height:1.7;margin-bottom:24px;font-weight:300}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold3));display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--navy);font-size:16px}
+.testi-name{font-size:0.9rem;font-weight:600;color:white}
+.testi-loc{font-size:0.78rem;color:rgba(255,255,255,0.4)}
+
+/* ─── IMPACT ─── */
+#impact{background:var(--cream)}
+.impact-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center}
+.impact-card{padding:40px 24px;background:white;border-radius:20px;border:1px solid rgba(184,134,11,0.1);transition:all 0.35s}
+.impact-card:hover{transform:translateY(-6px);box-shadow:0 24px 64px rgba(184,134,11,0.12)}
+.impact-num{font-family:'Cormorant Garamond',serif;font-size:3.5rem;font-weight:700;color:var(--gold);line-height:1}
+.impact-label{font-size:0.85rem;color:var(--muted);font-weight:500;margin-top:8px;line-height:1.5}
+
+/* ─── 3D FLOATING SECTION ─── */
+#canvas3d-section{background:linear-gradient(160deg,#1a2744,#0f1a35);padding:80px 60px;position:relative;overflow:hidden}
+#scales-canvas{width:100%;height:420px;display:block}
+.canvas3d-overlay{position:absolute;top:50%;left:60px;transform:translateY(-50%);z-index:2;max-width:440px}
+.canvas3d-overlay .section-title{color:white}
+.canvas3d-overlay .section-sub{color:rgba(255,255,255,0.55)}
+
+/* ─── FOOTER ─── */
+footer{background:var(--navy2);color:rgba(255,255,255,0.55);padding:60px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.footer-brand .nav-logo{margin-bottom:16px}
+.footer-brand p{font-size:0.875rem;line-height:1.65;max-width:280px}
+.footer-col h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:white;margin-bottom:16px}
+.footer-col a{display:block;font-size:0.875rem;color:rgba(255,255,255,0.45);text-decoration:none;margin-bottom:10px;transition:color 0.2s}
+.footer-col a:hover{color:var(--gold3)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:28px;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.footer-bottom span{color:rgba(255,255,255,0.25)}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.7s ease,transform 0.7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* cursor */
+.cursor-blink{animation:blink 0.9s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* divider */
+.divider{height:1px;background:rgba(26,39,68,0.08);margin:24px 0}
+
+/* scroll progress */
+#prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--navy));z-index:9999;transition:width 0.1s linear}
+
+@media(max-width:900px){
+  nav{padding:16px 24px}
+  section{padding:70px 24px}
+  .hero-content{padding:120px 24px 60px}
+  .hero-3d-side{display:none}
+  .app-layout{grid-template-columns:1fr}
+  .app-left{position:relative;top:0}
+  .features-grid,.cats-grid,.testi-grid{grid-template-columns:1fr 1fr}
+  .impact-grid{grid-template-columns:1fr 1fr}
+  .steps-flow{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  #canvas3d-section .canvas3d-overlay{position:relative;top:0;left:0;transform:none;max-width:100%;margin-bottom:32px;padding:0 24px}
+}
+@media(max-width:600px){
+  .features-grid,.cats-grid,.testi-grid{grid-template-columns:1fr}
+  .impact-grid{grid-template-columns:1fr 1fr}
+  .hero-stats{gap:24px}
+  .nav-links{display:none}
+  .cat-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">
+    <div class="nav-logo-icon">⚖️</div>
+    <div class="nav-logo-text">Nyaya<span>Saathi</span></div>
+  </div>
+  <div class="nav-links">
+    <a href="#how">How It Works</a>
+    <a href="#categories">Categories</a>
+    <a href="#app">Get Legal Help</a>
+    <a href="#impact">Impact</a>
+  </div>
+  <button class="nav-cta" onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})">Get Free Help →</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">🇮🇳 AI-Powered · Free Legal Aid · For Every Indian</div>
+    <h1 class="hero-h1">Your Rights.<br/><em>Simply Explained.</em><br/>For Free.</h1>
+    <p class="hero-p">Millions of Indians face legal battles alone — too poor for lawyers, too confused by jargon. NyayaSaathi is your AI-powered legal companion, in your own language.</p>
+    <div class="hero-btns">
+      <button class="btn-hero-primary" onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})">Get Free Legal Guidance ⚖️</button>
+      <button class="btn-hero-ghost" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">40<span>M+</span></div>
+        <div class="stat-label">Pending Cases in India</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">7<span>+</span></div>
+        <div class="stat-label">Languages Supported</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Legal Categories</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-3d-side">
+    <canvas id="scene-canvas"></canvas>
+  </div>
+  <div class="hero-scroll-hint"><div class="scroll-line"></div>Scroll to explore</div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <div class="section-tag reveal">How It Works</div>
+    <h2 class="section-title reveal">Four Steps to Justice</h2>
+    <p class="section-sub reveal">No lawyer needed. No fees. Just describe your problem and let AI guide you to your rights.</p>
+    <div class="steps-flow">
+      <div class="step-card reveal">
+        <div class="step-icon-wrap">
+          <div class="step-icon-inner s1">🗂️</div>
+          <div class="step-num">1</div>
+        </div>
+        <div class="step-title">Choose Category</div>
+        <p class="step-desc">Select the type of legal issue — property, labour, consumer fraud, domestic violence, FIR or cyber crime.</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-icon-wrap">
+          <div class="step-icon-inner s2">🌐</div>
+          <div class="step-num">2</div>
+        </div>
+        <div class="step-title">Pick Your Language</div>
+        <p class="step-desc">Get guidance in Hindi, Kannada, Tamil, Telugu, Bengali, Marathi or English — whichever you're most comfortable with.</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-icon-wrap">
+          <div class="step-icon-inner s3">✍️</div>
+          <div class="step-num">3</div>
+        </div>
+        <div class="step-title">Describe Your Problem</div>
+        <p class="step-desc">Type your situation in plain words. Our AI understands simple language — no legal terms required.</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-icon-wrap">
+          <div class="step-icon-inner s4">📋</div>
+          <div class="step-num">4</div>
+        </div>
+        <div class="step-title">Get Full Guidance</div>
+        <p class="step-desc">Receive your rights, applicable laws, action steps, a ready-to-file complaint draft, and the exact authority to approach.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="section-tag reveal">Features</div>
+    <h2 class="section-title reveal">Everything You Need<br/>to Fight for Your Rights</h2>
+    <p class="section-sub reveal">Designed for first-generation litigants — people who have never set foot in a courtroom.</p>
+    <div class="features-grid">
+      <div class="feat-card reveal">
+        <span class="feat-icon">⚖️</span>
+        <div class="feat-title">Know Your Rights</div>
+        <p class="feat-desc">AI explains your legal rights in simple, jargon-free language tailored to your specific situation and the relevant Indian laws.</p>
+        <span class="feat-tag">IPC · Consumer Act · Labour Law</span>
+      </div>
+      <div class="feat-card reveal">
+        <span class="feat-icon">📄</span>
+        <div class="feat-title">Complaint Draft Generator</div>
+        <p class="feat-desc">Get a ready-to-file formal complaint letter with proper legal language, addressed to the correct authority. Just fill in the blanks.</p>
+        <span class="feat-tag">Copy · Print · Submit</span>
+      </div>
+      <div class="feat-card reveal">
+        <span class="feat-icon">🗺️</span>
+        <div class="feat-title">Exact Authority Finder</div>
+        <p class="feat-desc">We tell you exactly which court, government body, or helpline to approach — no more wandering between offices.</p>
+        <span class="feat-tag">Court · Police · Consumer Forum</span>
+      </div>
+      <div class="feat-card reveal">
+        <span class="feat-icon">🔥</span>
+        <div class="feat-title">Urgency Assessment</div>
+        <p class="feat-desc">AI flags whether your case is low, medium, or high urgency — so you know how quickly to act and what steps to prioritize.</p>
+        <span class="feat-tag">Real-time Analysis</span>
+      </div>
+      <div class="feat-card reveal">
+        <span class="feat-icon">📞</span>
+        <div class="feat-title">Helpline Directory</div>
+        <p class="feat-desc">Instant access to relevant helplines — National Legal Services Authority, Women's Helpline, Cyber Crime, Consumer Forum and more.</p>
+        <span class="feat-tag">NALSA · 181 · 1930</span>
+      </div>
+      <div class="feat-card reveal">
+        <span class="feat-icon">🌍</span>
+        <div class="feat-title">7 Indian Languages</div>
+        <p class="feat-desc">Full legal guidance in Hindi, Kannada, Tamil, Telugu, Bengali, Marathi and English. Justice shouldn't have a language barrier.</p>
+        <span class="feat-tag">हिंदी · ಕನ್ನಡ · தமிழ்</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3D SCALES SECTION -->
+<div id="canvas3d-section">
+  <canvas id="scales-canvas"></canvas>
+  <div class="canvas3d-overlay reveal">
+    <div class="section-tag" style="color:var(--gold3)">AI + Law</div>
+    <h2 class="section-title">Justice, Balanced<br/>by Intelligence</h2>
+    <p class="section-sub">Our AI has been trained on Indian legal texts, IPC sections, and landmark Supreme Court judgements — so the guidance you receive is grounded in real Indian law.</p>
+    <button class="btn-hero-primary" onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})" style="margin-top:8px">Try It Now →</button>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section id="categories">
+  <div class="container">
+    <div class="section-tag reveal">Legal Categories</div>
+    <h2 class="section-title reveal">What Issue<br/>Can We Help With?</h2>
+    <p class="section-sub reveal">Six major areas of Indian law, made accessible for everyone.</p>
+    <div class="cats-grid">
+      <div class="big-cat reveal" onclick="selectCat('property')">
+        <div class="big-cat-arrow">→</div>
+        <span class="big-cat-icon">🏠</span>
+        <div class="big-cat-title">Property Dispute</div>
+        <p class="big-cat-desc">Land encroachment, rent disputes, security deposit, illegal eviction, inheritance conflicts.</p>
+      </div>
+      <div class="big-cat reveal" onclick="selectCat('labour')">
+        <div class="big-cat-arrow">→</div>
+        <span class="big-cat-icon">⚒️</span>
+        <div class="big-cat-title">Labour Rights</div>
+        <p class="big-cat-desc">Unpaid wages, wrongful termination, workplace harassment, PF/ESI violations, contract disputes.</p>
+      </div>
+      <div class="big-cat reveal" onclick="selectCat('consumer')">
+        <div class="big-cat-arrow">→</div>
+        <span class="big-cat-icon">🛒</span>
+        <div class="big-cat-title">Consumer Fraud</div>
+        <p class="big-cat-desc">Defective products, service fraud, overcharging, misleading advertisements, refund disputes.</p>
+      </div>
+      <div class="big-cat reveal" onclick="selectCat('domestic')">
+        <div class="big-cat-arrow">→</div>
+        <span class="big-cat-icon">🛡️</span>
+        <div class="big-cat-title">Domestic Violence</div>
+        <p class="big-cat-desc">Protection orders, safe shelter rights, maintenance, child custody under Protection of Women Act.</p>
+      </div>
+      <div class="big-cat reveal" onclick="selectCat('police')">
+        <div class="big-cat-arrow">→</div>
+        <span class="big-cat-icon">⚖️</span>
+        <div class="big-cat-title">Police / FIR</div>
+        <p class="big-cat-desc">Filing FIR, wrongful arrest, bail rights, police misconduct, Section 498A, victim rights.</p>
+      </div>
+      <div class="big-cat reveal" onclick="selectCat('cyber')">
+        <div class="big-cat-arrow">→</div>
+        <span class="big-cat-icon">💻</span>
+        <div class="big-cat-title">Cyber Crime</div>
+        <p class="big-cat-desc">Online fraud, identity theft, UPI scam, social media harassment, fake job offers, data theft.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APP -->
+<section id="app">
+  <div class="container">
+    <div class="app-layout">
+      <div class="app-left">
+        <div class="section-tag reveal">Free Legal Aid</div>
+        <h2 class="section-title reveal">Describe Your<br/>Problem. Get Help.</h2>
+        <p class="section-sub reveal" style="margin-bottom:32px">Our AI reads Indian law so you don't have to. Free, private, and available 24/7 in your language.</p>
+        <div style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border-radius:16px;padding:24px;border:1px solid rgba(184,134,11,0.2)" class="reveal">
+          <div style="font-weight:700;color:var(--navy);margin-bottom:8px;font-size:0.95rem">🔒 Your Privacy is Protected</div>
+          <div style="font-size:0.85rem;color:var(--muted);line-height:1.6">We do not store your queries or personal information. Every session is private and encrypted.</div>
+        </div>
+      </div>
+
+      <div class="app-right">
+        <!-- Step Indicator -->
+        <div class="step-ind" id="stepInd">
+          <div class="si"><div class="si-circle act" id="sc1">1</div><span class="si-label act" id="sl1">Category</span></div>
+          <div class="si-line"></div>
+          <div class="si"><div class="si-circle" id="sc2">2</div><span class="si-label" id="sl2">Language</span></div>
+          <div class="si-line"></div>
+          <div class="si"><div class="si-circle" id="sc3">3</div><span class="si-label" id="sl3">Describe</span></div>
+          <div class="si-line"></div>
+          <div class="si"><div class="si-circle" id="sc4">4</div><span class="si-label" id="sl4">Guidance</span></div>
+        </div>
+
+        <!-- Language -->
+        <div class="lang-section">
+          <div class="lang-label">Select Language</div>
+          <div class="lang-pills" id="langPills">
+            <div class="lang-pill active" onclick="setLang(this,'English')">English</div>
+            <div class="lang-pill" onclick="setLang(this,'Hindi')">हिंदी</div>
+            <div class="lang-pill" onclick="setLang(this,'Kannada')">ಕನ್ನಡ</div>
+            <div class="lang-pill" onclick="setLang(this,'Tamil')">தமிழ்</div>
+            <div class="lang-pill" onclick="setLang(this,'Telugu')">తెలుగు</div>
+            <div class="lang-pill" onclick="setLang(this,'Bengali')">বাংলা</div>
+            <div class="lang-pill" onclick="setLang(this,'Marathi')">मराठी</div>
+          </div>
+        </div>
+
+        <!-- Category -->
+        <div class="cat-label">Select Category</div>
+        <div class="cat-grid" id="catGrid">
+          <div class="cat-card" onclick="pickCat(this,'property')">
+            <span class="ci">🏠</span>
+            <div><div class="ct">Property Dispute</div><div class="cd">Land, rent, eviction</div></div>
+          </div>
+          <div class="cat-card" onclick="pickCat(this,'labour')">
+            <span class="ci">⚒️</span>
+            <div><div class="ct">Labour Rights</div><div class="cd">Wages, dismissal</div></div>
+          </div>
+          <div class="cat-card" onclick="pickCat(this,'consumer')">
+            <span class="ci">🛒</span>
+            <div><div class="ct">Consumer Fraud</div><div class="cd">Products, services</div></div>
+          </div>
+          <div class="cat-card" onclick="pickCat(this,'domestic')">
+            <span class="ci">🛡️</span>
+            <div><div class="ct">Domestic Violence</div><div class="cd">Protection, safety</div></div>
+          </div>
+          <div class="cat-card" onclick="pickCat(this,'police')">
+            <span class="ci">⚖️</span>
+            <div><div class="ct">Police / FIR</div><div class="cd">Filing, arrest, bail</div></div>
+          </div>
+          <div class="cat-card" onclick="pickCat(this,'cyber')">
+            <span class="ci">💻</span>
+            <div><div class="ct">Cyber Crime</div><div class="cd">Online fraud, theft</div></div>
+          </div>
+        </div>
+
+        <!-- Query -->
+        <div class="input-label">Describe Your Situation</div>
+        <textarea id="query" placeholder='e.g. "My landlord has not returned my ₹40,000 security deposit for 3 months after I vacated. He ignores my calls. What can I do?"' oninput="updateChar(this)" maxlength="1200"></textarea>
+        <div class="char-ct" id="charCt">0/1200</div>
+
+        <div id="errBox"></div>
+
+        <button class="btn-submit" id="submitBtn" onclick="submitQuery()" disabled>
+          Get My Legal Guidance ⚖️
+        </button>
+
+        <!-- Loading -->
+        <div id="loadingBox" style="display:none">
+          <div class="loading-box">
+            <div class="loader"></div>
+            <div class="loading-t">Analysing your situation...</div>
+            <div class="loading-s">Identifying applicable Indian laws & your rights</div>
+          </div>
+        </div>
+
+        <!-- Result -->
+        <div id="resultBox" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section id="impact">
+  <div class="container">
+    <div class="section-tag reveal">Social Impact</div>
+    <h2 class="section-title reveal">The Scale of the Problem<br/>We're Solving</h2>
+    <p class="section-sub reveal">India's justice gap is one of the largest in the world. NyayaSaathi is built to bridge it.</p>
+    <div class="impact-grid">
+      <div class="impact-card reveal">
+        <div class="impact-num">40M+</div>
+        <div class="impact-label">Cases pending in Indian courts as of 2024</div>
+      </div>
+      <div class="impact-card reveal">
+        <div class="impact-num">70%</div>
+        <div class="impact-label">Indians cannot afford a private lawyer</div>
+      </div>
+      <div class="impact-card reveal">
+        <div class="impact-num">1:50K</div>
+        <div class="impact-label">Ratio of judges to citizens in India</div>
+      </div>
+      <div class="impact-card reveal">
+        <div class="impact-num">₹0</div>
+        <div class="impact-label">Cost to use NyayaSaathi — always free</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <div class="section-tag reveal" style="color:var(--gold3)">Stories of Impact</div>
+    <h2 class="section-title reveal">Real People,<br/>Real Relief</h2>
+    <p class="section-sub reveal">Stories from Indians who found their voice through NyayaSaathi.</p>
+    <div class="testi-grid">
+      <div class="testi-card reveal">
+        <div class="testi-quote">"</div>
+        <p class="testi-text">My employer didn't pay me for 3 months. I had no idea I could file a complaint with the Labour Commissioner. NyayaSaathi gave me the exact letter to send — and I got my money back in 2 weeks.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">R</div>
+          <div><div class="testi-name">Ravi Kumar</div><div class="testi-loc">Factory Worker, Bangalore</div></div>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-quote">"</div>
+        <p class="testi-text">मेरे पति ने मुझे घर से निकाल दिया। मुझे नहीं पता था मेरे क्या अधिकार हैं। NyayaSaathi ने हिंदी में सब समझाया और शेल्टर होम का नंबर दिया। मेरी ज़िंदगी बच गई।</p>
+        <div class="testi-author">
+          <div class="testi-avatar">S</div>
+          <div><div class="testi-name">Sunita Devi</div><div class="testi-loc">Homemaker, Lucknow</div></div>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-quote">"</div>
+        <p class="testi-text">I lost ₹85,000 in a UPI scam. The police wouldn't file my FIR. NyayaSaathi showed me that the bank is liable under RBI guidelines and drafted my complaint to the Banking Ombudsman. The money was refunded.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">A</div>
+          <div><div class="testi-name">Anjali Sharma</div><div class="testi-loc">Teacher, Chennai</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="margin-bottom:16px">
+          <div class="nav-logo-icon">⚖️</div>
+          <div class="nav-logo-text" style="color:white">Nyaya<span style="color:var(--gold3)">Saathi</span></div>
+        </div>
+        <p>Free AI-powered legal aid for every Indian. Know your rights. File your complaint. Access justice — in your language, for free.</p>
+        <p style="margin-top:16px;font-size:12px;color:rgba(255,255,255,0.25)">Built for social impact at a Bangalore Hackathon 🇮🇳</p>
+      </div>
+      <div class="footer-col">
+        <h4>Legal Areas</h4>
+        <a href="#">Property Disputes</a>
+        <a href="#">Labour Rights</a>
+        <a href="#">Consumer Fraud</a>
+        <a href="#">Domestic Violence</a>
+        <a href="#">Police / FIR</a>
+        <a href="#">Cyber Crime</a>
+      </div>
+      <div class="footer-col">
+        <h4>Languages</h4>
+        <a href="#">English</a>
+        <a href="#">Hindi · हिंदी</a>
+        <a href="#">Kannada · ಕನ್ನಡ</a>
+        <a href="#">Tamil · தமிழ்</a>
+        <a href="#">Telugu · తెలుగు</a>
+        <a href="#">Bengali · বাংলা</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="#">NALSA Legal Aid</a>
+        <a href="#">National Consumer Helpline</a>
+        <a href="#">Cyber Crime Portal</a>
+        <a href="#">Women's Helpline 181</a>
+        <a href="#">eCourts India</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 NyayaSaathi. General legal information only — not professional legal advice.</span>
+      <span>Made with ❤️ for Bharat</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ─────────────────────── STATE ─────────────────────── */
+let selectedLang = 'English';
+let selectedCat = null;
+
+/* ─────────────────────── SCROLL PROGRESS ─────────────────────── */
+window.addEventListener('scroll', () => {
+  const p = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+  document.getElementById('prog').style.width = p + '%';
+});
+
+/* ─────────────────────── REVEAL ON SCROLL ─────────────────────── */
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), 80);
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => io.observe(el));
+
+/* ─────────────────────── HERO 3D (Three.js floating scales) ─────────────────────── */
+(function() {
+  const canvas = document.getElementById('scene-canvas');
+  if (!canvas) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+  camera.position.set(0, 0, 5);
+
+  // Ambient + directional light
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  const dl = new THREE.DirectionalLight(0xb8860b, 1.5);
+  dl.position.set(3, 5, 5);
+  scene.add(dl);
+  const dl2 = new THREE.DirectionalLight(0x1a2744, 1);
+  dl2.position.set(-3, -2, 2);
+  scene.add(dl2);
+
+  // Scales of justice — build from primitives
+  const goldMat = new THREE.MeshPhongMaterial({ color: 0xb8860b, shininess: 120, specular: 0xd4a520 });
+  const navyMat = new THREE.MeshPhongMaterial({ color: 0x1a2744, shininess: 80 });
+  const whiteMat = new THREE.MeshPhongMaterial({ color: 0xfaf8f3, shininess: 40 });
+
+  const group = new THREE.Group();
+
+  // Base pillar
+  const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.1, 2.2, 12), navyMat);
+  group.add(pillar);
+
+  // Top cross beam
+  const beam = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.08, 0.08), goldMat);
+  beam.position.y = 1.1;
+  group.add(beam);
+
+  // Left pan chain
+  const lChain = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.8, 6), goldMat);
+  lChain.position.set(-1.1, 0.7, 0);
+  group.add(lChain);
+
+  // Right pan chain
+  const rChain = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.8, 6), goldMat);
+  rChain.position.set(1.1, 0.7, 0);
+  group.add(rChain);
+
+  // Left pan
+  const lPan = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.45, 0.06, 20), goldMat);
+  lPan.position.set(-1.1, 0.28, 0);
+  group.add(lPan);
+
+  // Right pan
+  const rPan = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.45, 0.06, 20), goldMat);
+  rPan.position.set(1.1, 0.28, 0);
+  group.add(rPan);
+
+  // Small orbs on pans
+  for (let i = 0; i < 3; i++) {
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 12), whiteMat);
+    orb.position.set(-1.1 + (i - 1) * 0.22, 0.38, 0);
+    group.add(orb);
+  }
+
+  // Base plate
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 0.1, 16), navyMat);
+  base.position.y = -1.1;
+  group.add(base);
+
+  // Top sphere
+  const topSph = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), goldMat);
+  topSph.position.y = 1.18;
+  group.add(topSph);
+
+  // Floating small spheres around
+  const floatObjs = [];
+  for (let i = 0; i < 14; i++) {
+    const r = 0.04 + Math.random() * 0.08;
+    const mat = i % 2 === 0 ? goldMat : navyMat;
+    const m = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 10), mat);
+    const angle = (i / 14) * Math.PI * 2;
+    const rad = 2 + Math.random() * 0.8;
+    m.position.set(Math.cos(angle) * rad, (Math.random() - 0.5) * 2.5, Math.sin(angle) * 0.5);
+    m.userData = { speed: 0.3 + Math.random() * 0.5, baseY: m.position.y, phase: Math.random() * Math.PI * 2 };
+    scene.add(m);
+    floatObjs.push(m);
+  }
+
+  scene.add(group);
+
+  // Resize
+  function resize() {
+    const w = canvas.parentElement.clientWidth;
+    const h = canvas.parentElement.clientHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.008;
+    group.rotation.y = Math.sin(t * 0.5) * 0.3;
+    group.rotation.x = Math.sin(t * 0.3) * 0.08;
+    // Swing pans
+    lPan.position.y = 0.28 + Math.sin(t) * 0.15;
+    lChain.position.y = 0.7 + Math.sin(t) * 0.075;
+    lChain.scale.y = 1 + Math.sin(t) * 0.12;
+    rPan.position.y = 0.28 - Math.sin(t) * 0.15;
+    rChain.position.y = 0.7 - Math.sin(t) * 0.075;
+    rChain.scale.y = 1 - Math.sin(t) * 0.12;
+    // Float orbs
+    floatObjs.forEach(o => {
+      o.position.y = o.userData.baseY + Math.sin(t * o.userData.speed + o.userData.phase) * 0.25;
+      o.rotation.x += 0.01;
+      o.rotation.z += 0.008;
+    });
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+/* ─────────────────────── HERO CANVAS PARTICLES ─────────────────────── */
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles;
+
+  function init() {
+    W = canvas.width = canvas.parentElement.offsetWidth;
+    H = canvas.height = canvas.parentElement.offsetHeight;
+    particles = Array.from({ length: 60 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: 1 + Math.random() * 3,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: -0.2 - Math.random() * 0.5,
+      opacity: 0.05 + Math.random() * 0.2
+    }));
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(184,134,11,${p.opacity})`;
+      ctx.fill();
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.y < -10) { p.y = H + 10; p.x = Math.random() * W; }
+      if (p.x < 0) p.x = W;
+      if (p.x > W) p.x = 0;
+    });
+    requestAnimationFrame(draw);
+  }
+
+  init();
+  draw();
+  window.addEventListener('resize', init);
+})();
+
+/* ─────────────────────── DARK BG 3D SECTION ─────────────────────── */
+(function() {
+  const canvas = document.getElementById('scales-canvas');
+  if (!canvas) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, 16 / 9, 0.1, 200);
+  camera.position.set(0, 0, 12);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+  const dl = new THREE.DirectionalLight(0xf0c040, 2);
+  dl.position.set(5, 8, 5);
+  scene.add(dl);
+
+  const goldM = new THREE.MeshPhongMaterial({ color: 0xd4a520, shininess: 200, specular: 0xf0c040 });
+  const blueM = new THREE.MeshPhongMaterial({ color: 0x4a7abf, shininess: 120, transparent: true, opacity: 0.8 });
+
+  // Create many floating 3D objects
+  const objs = [];
+  const shapes = [
+    () => new THREE.TorusGeometry(0.4, 0.1, 12, 40),
+    () => new THREE.OctahedronGeometry(0.4),
+    () => new THREE.TetrahedronGeometry(0.5),
+    () => new THREE.BoxGeometry(0.5, 0.5, 0.5),
+    () => new THREE.SphereGeometry(0.3, 16, 16),
+  ];
+
+  for (let i = 0; i < 28; i++) {
+    const geom = shapes[i % shapes.length]();
+    const mat = i % 3 === 0 ? goldM : (i % 3 === 1 ? blueM : new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 80, transparent: true, opacity: 0.3 }));
+    const mesh = new THREE.Mesh(geom, mat);
+    mesh.position.set((Math.random() - 0.5) * 18, (Math.random() - 0.5) * 8, (Math.random() - 0.5) * 6);
+    mesh.userData = {
+      rx: (Math.random() - 0.5) * 0.02,
+      ry: (Math.random() - 0.5) * 0.02,
+      vy: (Math.random() - 0.5) * 0.008,
+      baseY: mesh.position.y,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.3 + Math.random() * 0.5
+    };
+    scene.add(mesh);
+    objs.push(mesh);
+  }
+
+  function resize() {
+    const w = canvas.parentElement.clientWidth;
+    renderer.setSize(w, 420);
+    camera.aspect = w / 420;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.008;
+    objs.forEach(o => {
+      o.rotation.x += o.userData.rx;
+      o.rotation.y += o.userData.ry;
+      o.position.y = o.userData.baseY + Math.sin(t * o.userData.speed + o.userData.phase) * 0.5;
+    });
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+/* ─────────────────────── APP LOGIC ─────────────────────── */
+function setLang(el, lang) {
+  document.querySelectorAll('.lang-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  selectedLang = lang;
+  updateStepInd();
+}
+
+function pickCat(el, cat) {
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedCat = cat;
+  updateSubmitBtn();
+  updateStepInd();
+}
+
+function selectCat(cat) {
+  document.getElementById('app').scrollIntoView({ behavior: 'smooth' });
+  setTimeout(() => {
+    document.querySelectorAll('.cat-card').forEach(c => {
+      if (c.getAttribute('onclick') && c.getAttribute('onclick').includes("'" + cat + "'")) {
+        c.click();
+      }
+    });
+  }, 800);
+}
+
+function updateChar(el) {
+  document.getElementById('charCt').textContent = el.value.length + '/1200';
+  updateSubmitBtn();
+  updateStepInd();
+}
+
+function updateSubmitBtn() {
+  const q = document.getElementById('query').value.trim();
+  document.getElementById('submitBtn').disabled = !q || !selectedCat;
+}
+
+function updateStepInd() {
+  const q = document.getElementById('query').value.trim();
+  const s = [!!selectedCat, !!selectedLang, !!q, false];
+  for (let i = 1; i <= 4; i++) {
+    const c = document.getElementById('sc' + i);
+    const l = document.getElementById('sl' + i);
+    c.classList.remove('act', 'done');
+    l.classList.remove('act');
+    if (i < 4 && s[i - 1]) { c.classList.add('done'); c.textContent = '✓'; }
+    else if (!s[i - 1] && (i === 1 || s[i - 2] || i === 1)) { c.textContent = i; }
+  }
+}
+
+async function submitQuery() {
+  const query = document.getElementById('query').value.trim();
+  if (!query || !selectedCat) return;
+
+  document.getElementById('errBox').innerHTML = '';
+  document.getElementById('resultBox').style.display = 'none';
+  document.getElementById('loadingBox').style.display = 'block';
+  document.getElementById('submitBtn').disabled = true;
+
+  const catLabels = { property: 'Property Dispute', labour: 'Labour Rights', consumer: 'Consumer Fraud', domestic: 'Domestic Violence', police: 'Police / FIR', cyber: 'Cyber Crime' };
+  const catLabel = catLabels[selectedCat];
+
+  const systemPrompt = `You are NyayaSaathi — an AI-powered legal aid assistant for Indian citizens who cannot afford lawyers. Help first-generation litigants understand their rights and take action.
+
+Respond ONLY with valid JSON (no markdown, no backticks) with exactly these fields:
+{
+  "summary": "2-3 sentence plain-language summary",
+  "rights": ["Right 1", "Right 2", "Right 3"],
+  "applicable_laws": ["Law name — brief explanation", ...],
+  "action_steps": ["Step 1", "Step 2", "Step 3", "Step 4"],
+  "draft_complaint": "Ready-to-use formal complaint letter in ${selectedLang} with [FULL NAME], [ADDRESS], [DATE] placeholders",
+  "authority_to_approach": "Specific government body, court, or helpline and how to contact",
+  "urgency": "low|medium|high",
+  "helplines": [{"name": "Name", "number": "Number or link"}]
+}
+
+Respond in ${selectedLang}. Use simple, compassionate language suitable for uneducated users. Be specific to Indian law.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: `Category: ${catLabel}\n\nSituation: ${query}` }]
+      })
+    });
+    const data = await res.json();
+    const raw = (data.content || []).map(b => b.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const r = JSON.parse(clean);
+    showResult(r);
+  } catch (e) {
+    document.getElementById('errBox').innerHTML = '<div class="err-box">Something went wrong. Please try again.</div>';
+  } finally {
+    document.getElementById('loadingBox').style.display = 'none';
+    document.getElementById('submitBtn').disabled = false;
+    updateSubmitBtn();
+  }
+}
+
+function showResult(r) {
+  const urgColors = { low: '#1e7a4a', medium: '#b8600b', high: '#c0392b' };
+  const urgBg = { low: 'rgba(30,122,74,0.08)', medium: 'rgba(184,96,11,0.08)', high: 'rgba(192,57,43,0.08)' };
+  const urgLabel = { low: '● Low Urgency', medium: '● Medium Urgency', high: '⚠ High Urgency' };
+  const uc = urgColors[r.urgency] || urgColors.medium;
+  const ub = urgBg[r.urgency] || urgBg.medium;
+
+  const hlHTML = (r.helplines || []).map(h => `<div class="hl-card"><div class="hl-name">${h.name}</div><div class="hl-num">${h.number}</div></div>`).join('');
+  const stepsHTML = (r.action_steps || []).map(s => `<li>${s}</li>`).join('');
+  const rightsHTML = (r.rights || []).map(s => `<span class="r-pill">${s}</span>`).join('');
+  const lawsHTML = (r.applicable_laws || []).map(s => `<span class="r-pill gold">${s}</span>`).join('');
+
+  document.getElementById('resultBox').innerHTML = `
+    <div class="result-wrap">
+      <div class="urg-badge" style="color:${uc};border-color:${uc};background:${ub}">${urgLabel[r.urgency] || urgLabel.medium}</div>
+      <div class="r-section"><div class="r-head">Situation Summary</div><div class="r-text">${r.summary}</div></div>
+      <div class="divider"></div>
+      <div class="r-section"><div class="r-head">Your Rights</div><div class="r-pills">${rightsHTML}</div></div>
+      <div class="r-section" style="margin-top:16px"><div class="r-head">Applicable Indian Laws</div><div class="r-pills">${lawsHTML}</div></div>
+      <div class="divider"></div>
+      <div class="r-section"><div class="r-head">Action Steps</div><ol class="steps-ol">${stepsHTML}</ol></div>
+      <div class="divider"></div>
+      <div class="r-section">
+        <div class="r-head">Ready-to-File Complaint Draft</div>
+        <div class="draft-box" id="draftText">${r.draft_complaint}</div>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('draftText').textContent)">📋 Copy Complaint</button>
+      </div>
+      <div class="divider"></div>
+      <div class="r-section"><div class="r-head">Where to Approach</div><div class="auth-box">🏛️ ${r.authority_to_approach}</div></div>
+      ${hlHTML ? `<div class="r-section" style="margin-top:20px"><div class="r-head">Helplines & Resources</div><div class="hl-list">${hlHTML}</div></div>` : ''}
+      <div class="divider"></div>
+      <button onclick="resetApp()" style="background:var(--cream);border:1.5px solid rgba(26,39,68,0.12);color:var(--muted);padding:12px 24px;border-radius:10px;font-family:Outfit,sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--navy)';this.style.color='var(--navy)'" onmouseout="this.style.borderColor='rgba(26,39,68,0.12)';this.style.color='var(--muted)'">← Start Over</button>
+    </div>`;
+  document.getElementById('resultBox').style.display = 'block';
+  document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Mark step 4 done
+  const sc4 = document.getElementById('sc4');
+  sc4.classList.add('done');
+  sc4.textContent = '✓';
+  document.getElementById('sl4').classList.add('act');
+}
+
+function resetApp() {
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('sel'));
+  document.getElementById('query').value = '';
+  document.getElementById('charCt').textContent = '0/1200';
+  document.getElementById('resultBox').style.display = 'none';
+  document.getElementById('errBox').innerHTML = '';
+  selectedCat = null;
+  updateSubmitBtn();
+  for (let i = 1; i <= 4; i++) {
+    const c = document.getElementById('sc' + i);
+    c.classList.remove('act', 'done');
+    c.textContent = i;
+    document.getElementById('sl' + i).classList.remove('act');
+  }
+  document.getElementById('sc1').classList.add('act');
+  document.getElementById('sl1').classList.add('act');
+}
+</script>
+</body>
+</html>
