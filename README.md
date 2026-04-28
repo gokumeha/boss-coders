@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # NyayaSaathi
 
 NyayaSaathi has been refactored from a single HTML file into a scalable full-stack application with a React frontend, an Express backend, and a shared contract layer for reusable content and validation.
@@ -136,3 +137,19 @@ NODE_ENV=development
 - Replace the mock logic in [backend/services/ai.service.js](C:\Users\Senhan Salavudheen\OneDrive\Desktop\Downloads\hackathon\backend\services\ai.service.js) with an AI provider client when ready.
 - Shared content and validation live in [shared/siteContent.js](C:\Users\Senhan Salavudheen\OneDrive\Desktop\Downloads\hackathon\shared\siteContent.js) and [shared/legalContract.js](C:\Users\Senhan Salavudheen\OneDrive\Desktop\Downloads\hackathon\shared\legalContract.js).
 - The frontend only talks to the backend through [frontend/src/services/api.js](C:\Users\Senhan Salavudheen\OneDrive\Desktop\Downloads\hackathon\frontend\src\services\api.js), making API swaps easier later.
+=======
+# ⚖️ NyayaSaathi
+
+NyayaSaathi is an AI-powered legal aid platform built to help Indian citizens understand their rights without needing a lawyer.  
+It simplifies complex legal information into easy, actionable guidance in multiple Indian languages.  
+Users can describe their problem in plain language and receive relevant laws, rights, and step-by-step actions.  
+The platform also generates ready-to-file complaint drafts and suggests the correct authority to approach.  
+It supports categories like property disputes, labour issues, consumer fraud, domestic violence, FIR, and cybercrime.  
+NyayaSaathi aims to bridge the justice gap for people who cannot afford legal assistance.  
+The platform is completely free, private, and accessible to everyone.  
+Built using HTML, CSS, JavaScript, Three.js, and AI APIs.  
+Designed with a clean, user-friendly interface for first-time legal users.  
+This project was developed for a social impact hackathon.  
+
+👥 Team: Boss Coders
+>>>>>>> f8e7f23ec79b14cea9ccc1cc610e221e21fbe489
