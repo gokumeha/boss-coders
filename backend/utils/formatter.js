@@ -43,6 +43,9 @@ export function formatLegalResponse(payload) {
       'To,\nThe Concerned Authority\n\nSubject: Request for legal assistance.\n\nPlease accept this complaint regarding the issue described above.\n\nSincerely,\n[FULL NAME]',
     ),
     helplines: ensureArray(payload.helplines, []),
+    research: payload.research || {
+      indiankanoon: { status: 'unavailable', documents: [], message: '' },
+      ecourts: { status: 'unavailable', portalUrl: '', note: '', searchModes: [] },
+    },
   };
 }
-

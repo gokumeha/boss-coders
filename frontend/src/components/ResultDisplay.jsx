@@ -1,125 +1,122 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 function getUrgencyLabel(urgency) {
   if (urgency === 'high') {
-    return 'High Urgency';
+    return 'High urgency';
   }
 
   if (urgency === 'low') {
-    return 'Low Urgency';
+    return 'Low urgency';
   }
 
-  return 'Medium Urgency';
+  return 'Medium urgency';
 }
 
 export default function ResultDisplay({ result, onReset }) {
-  const [copyStatus, setCopyStatus] = useState('Copy Complaint');
-
-  useEffect(() => {
-    setCopyStatus('Copy Complaint');
-  }, [result]);
-
-  const rightsList = useMemo(() => {
-    if (Array.isArray(result.rightsList) && result.rightsList.length > 0) {
-      return result.rightsList;
-    }
-
-    return result.rights
-      .split('.')
-      .map((item) => item.trim())
-      .filter(Boolean);
-  }, [result]);
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(result.draft);
-      setCopyStatus('Copied');
-    } catch (_error) {
-      setCopyStatus('Copy Failed');
-    }
-  }
+  const { copy } = useLanguage();
 
   return (
-    <div className="result-wrap">
-      <div className={`urg-badge urgency-${result.urgency}`}>
+    <div className="result-panel">
+      <div className={`urgency-pill urgency-pill--${result.urgency}`}>
         {getUrgencyLabel(result.urgency)}
       </div>
 
-      <div className="r-section">
-        <div className="r-head">Situation Summary</div>
-        <div className="r-text">{result.summary}</div>
-      </div>
+      <section className="result-section">
+        <h3>{copy.result.summary}</h3>
+        <p>{result.summary}</p>
+      </section>
 
-      <div className="divider" />
-
-      <div className="r-section">
-        <div className="r-head">Your Rights</div>
-        <div className="r-pills">
-          {rightsList.map((right) => (
-            <span className="r-pill" key={right}>
+      <section className="result-section">
+        <h3>{copy.result.rights}</h3>
+        <div className="chip-list">
+          {(result.rightsList || []).map((right) => (
+            <span className="chip" key={right}>
               {right}
             </span>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div className="r-section r-section--spaced">
-        <div className="r-head">Applicable Indian Laws</div>
-        <div className="r-pills">
-          {result.laws.map((law) => (
-            <span className="r-pill gold" key={law}>
+      <section className="result-section">
+        <h3>{copy.result.laws}</h3>
+        <div className="chip-list">
+          {(result.laws || []).map((law) => (
+            <span className="chip chip--gold" key={law}>
               {law}
             </span>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div className="divider" />
-
-      <div className="r-section">
-        <div className="r-head">Action Steps</div>
-        <ol className="steps-ol">
-          {result.steps.map((step) => (
+      <section className="result-section">
+        <h3>{copy.result.steps}</h3>
+        <ol className="ordered-list">
+          {(result.steps || []).map((step) => (
             <li key={step}>{step}</li>
           ))}
         </ol>
-      </div>
+      </section>
 
-      <div className="divider" />
+      <section className="result-section">
+        <h3>{copy.result.draft}</h3>
+        <pre className="draft-box">{result.draft}</pre>
+      </section>
 
-      <div className="r-section">
-        <div className="r-head">Ready-to-File Complaint Draft</div>
-        <div className="draft-box">{result.draft}</div>
-        <button className="copy-btn" type="button" onClick={handleCopy}>
-          {copyStatus}
-        </button>
-      </div>
+      <section className="result-section">
+        <h3>{copy.result.authority}</h3>
+        <div className="info-surface">{result.authority}</div>
+      </section>
 
-      <div className="divider" />
-
-      <div className="r-section">
-        <div className="r-head">Where to Approach</div>
-        <div className="auth-box">{result.authority}</div>
-      </div>
-
-      {result.helplines.length > 0 ? (
-        <div className="r-section r-section--spaced">
-          <div className="r-head">Helplines &amp; Resources</div>
-          <div className="hl-list">
+      {result.helplines?.length ? (
+        <section className="result-section">
+          <h3>{copy.result.helplines}</h3>
+          <div className="resource-grid resource-grid--tight">
             {result.helplines.map((helpline) => (
-              <div className="hl-card" key={`${helpline.name}-${helpline.number}`}>
-                <div className="hl-name">{helpline.name}</div>
-                <div className="hl-num">{helpline.number}</div>
-              </div>
+              <article className="mini-card" key={`${helpline.name}-${helpline.number}`}>
+                <strong>{helpline.name}</strong>
+                <span>{helpline.number}</span>
+              </article>
             ))}
           </div>
-        </div>
+        </section>
       ) : null}
 
-      <div className="divider" />
+      {result.research?.indiankanoon?.documents?.length ? (
+        <section className="result-section">
+          <h3>{copy.common.relatedCases}</h3>
+          <div className="resource-grid resource-grid--tight">
+            {result.research.indiankanoon.documents.map((document) => (
+              <a
+                className="mini-card mini-card--link"
+                href={document.link}
+                key={document.id}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <strong>{document.title}</strong>
+                <span>{document.source}</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
-      <button className="btn-reset" type="button" onClick={onReset}>
-        Start Over
+      {result.research?.ecourts?.portalUrl ? (
+        <section className="result-section">
+          <h3>{copy.common.officialCourtAccess}</h3>
+          <a
+            className="info-surface info-surface--link"
+            href={result.research.ecourts.portalUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {result.research.ecourts.note}
+          </a>
+        </section>
+      ) : null}
+
+      <button className="secondary-action" type="button" onClick={onReset}>
+        {copy.result.reset}
       </button>
     </div>
   );

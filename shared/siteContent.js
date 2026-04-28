@@ -1,95 +1,146 @@
-export const NAV_LINKS = [
-  { label: 'How It Works', href: '#how' },
-  { label: 'Categories', href: '#categories' },
-  { label: 'Get Legal Help', href: '#app' },
-  { label: 'Impact', href: '#impact' },
+export const PRIMARY_NAV_ITEMS = [
+  { label: 'Home', to: '/' },
+  { label: 'Features', to: '/features' },
+  { label: 'Categories', to: '/categories' },
+  { label: 'Assistant', to: '/assistant' },
+  { label: 'Resources', to: '/resources' },
 ];
 
-export const HERO_STATS = [
-  { value: '40M+', label: 'Pending Cases in India' },
-  { value: '7+', label: 'Languages Supported' },
-  { value: '6', label: 'Legal Categories' },
+export const HOME_FLOW_STEPS = [
+  {
+    id: 'discover',
+    eyebrow: 'Discover',
+    title: 'Understand the right path before you file anything.',
+    description:
+      'Start with guided summaries, category pages, and feature explainers instead of jumping into a crowded dashboard.',
+  },
+  {
+    id: 'prepare',
+    eyebrow: 'Prepare',
+    title: 'Move through a structured intake that feels calm and clear.',
+    description:
+      'Pick a language, describe the issue, review next steps, and capture a complaint draft with less cognitive load.',
+  },
+  {
+    id: 'validate',
+    eyebrow: 'Validate',
+    title: 'Back your next step with public legal sources.',
+    description:
+      'Use Indian Kanoon research results and official eCourts pathways to sanity-check what to do next.',
+  },
 ];
 
-export const HOW_IT_WORKS_STEPS = [
-  {
-    number: '1',
-    icon: '🗂',
-    iconClassName: 's1',
-    title: 'Choose Category',
-    description:
-      'Select the type of legal issue: property, labour, consumer fraud, domestic violence, FIR or cyber crime.',
-  },
-  {
-    number: '2',
-    icon: '🌐',
-    iconClassName: 's2',
-    title: 'Pick Your Language',
-    description:
-      "Get guidance in English, Hindi, Kannada, Tamil, Telugu, Bengali or Marathi, whichever you're most comfortable with.",
-  },
-  {
-    number: '3',
-    icon: '✍',
-    iconClassName: 's3',
-    title: 'Describe Your Problem',
-    description:
-      'Type your situation in plain words. No legal jargon is required for the AI to understand your case.',
-  },
-  {
-    number: '4',
-    icon: '📋',
-    iconClassName: 's4',
-    title: 'Get Full Guidance',
-    description:
-      'Receive your rights, applicable laws, next steps, a draft complaint, and the authority to approach.',
-  },
+export const HERO_METRICS = [
+  { value: '40M+', label: 'Pending cases needing clarity' },
+  { value: '7', label: 'Working interface languages' },
+  { value: '2', label: 'Connected legal research surfaces' },
 ];
 
 export const FEATURES = [
   {
-    icon: '⚖',
-    title: 'Know Your Rights',
+    id: 'guided-intake',
+    icon: 'Compass',
+    title: 'Guided Intake',
+    tagline: 'A calmer step-by-step legal intake flow',
     description:
-      'Legal rights are explained in simple, plain language tailored to the situation and the relevant Indian laws.',
-    tag: 'IPC · Consumer Act · Labour Law',
+      'The assistant now follows a clearer flow inspired by modern guided-product experiences instead of dropping everything onto one screen.',
+    details:
+      'Users move from orientation to category selection, issue description, response review, and research follow-up in a cleaner sequence.',
+    highlights: ['Step-based experience', 'Less cognitive overload', 'Clear progress state'],
   },
   {
-    icon: '📄',
-    title: 'Complaint Draft Generator',
+    id: 'multilingual-support',
+    icon: 'Languages',
+    title: 'Multilingual Support',
+    tagline: 'Language selection now drives the actual experience',
     description:
-      'Generate a ready-to-file complaint letter addressed to the correct authority. Fill in the placeholders and submit.',
-    tag: 'Copy · Print · Submit',
+      'Interface labels, guidance framing, and user preferences are now connected to a real language state instead of being decorative.',
+    details:
+      'The selected language is persisted in the app flow and reused across routes, form submission, and saved preferences.',
+    highlights: ['Persistent preference', 'Localized UI copy', 'Connected assistant state'],
   },
   {
-    icon: '🗺',
-    title: 'Exact Authority Finder',
+    id: 'google-sign-in',
+    icon: 'ShieldCheck',
+    title: 'Google Sign-In',
+    tagline: 'Firebase-backed authentication for continuity',
     description:
-      'Get clear direction on which court, helpline, or government body to approach without bouncing between offices.',
-    tag: 'Court · Police · Consumer Forum',
+      'Users can continue with Google, store profile state, and unlock saved activity without building a custom auth system from scratch.',
+    details:
+      'Firebase Authentication handles Google sign-in, while Firestore stores profile and history data for signed-in sessions.',
+    highlights: ['Firebase Auth', 'Google provider', 'Session-aware navigation'],
   },
   {
-    icon: '🔥',
-    title: 'Urgency Assessment',
+    id: 'legal-research',
+    icon: 'Scale',
+    title: 'Legal Research Layer',
+    tagline: 'Research beyond a generated answer',
     description:
-      'Understand whether the issue is low, medium, or high urgency so time-sensitive action is never missed.',
-    tag: 'Real-time Analysis',
-  },
-  {
-    icon: '📞',
-    title: 'Helpline Directory',
-    description:
-      'Relevant helplines are surfaced instantly, including legal aid, cyber crime, consumer support, and safety resources.',
-    tag: 'NALSA · 181 · 1930',
-  },
-  {
-    icon: '🌍',
-    title: '7 Indian Languages',
-    description:
-      'Justice should not depend on language, so the app is structured to support multilingual guidance from day one.',
-    tag: 'हिंदी · ಕನ್ನಡ · தமிழ்',
+      'The experience now has a dedicated resources surface for case-law discovery and official case-status navigation.',
+    details:
+      'Indian Kanoon is wired through a backend integration layer, and eCourts access is modeled through an official-path adapter.',
+    highlights: ['Indian Kanoon integration', 'eCourts pathways', 'Extensible provider boundary'],
   },
 ];
+
+export const FEATURE_MAP = Object.fromEntries(
+  FEATURES.map((feature) => [feature.id, feature]),
+);
+
+export const CATEGORIES = [
+  {
+    id: 'property',
+    title: 'Property Dispute',
+    shortDescription: 'Land, rent, eviction, deposits',
+    description:
+      'Use this for rent deposits, illegal eviction, co-ownership conflicts, encroachment, partition, and other possession-related disputes.',
+    nextSteps: ['Collect agreements and receipts', 'Preserve payment history', 'Prepare a dated written demand'],
+  },
+  {
+    id: 'labour',
+    title: 'Labour Rights',
+    shortDescription: 'Wages, termination, PF, harassment',
+    description:
+      'Use this for unpaid wages, wrongful dismissal, contract disputes, PF and ESI issues, workplace abuse, and settlement dues.',
+    nextSteps: ['Preserve salary proof', 'Record employer communication', 'Prepare a labour complaint trail'],
+  },
+  {
+    id: 'consumer',
+    title: 'Consumer Fraud',
+    shortDescription: 'Refunds, defective products, service fraud',
+    description:
+      'Use this for failed purchases, misrepresentation, fake offers, non-delivery, and service deficiency disputes.',
+    nextSteps: ['Save invoices and screenshots', 'Track refund promises', 'Prepare escalation chronology'],
+  },
+  {
+    id: 'domestic',
+    title: 'Domestic Violence',
+    shortDescription: 'Safety, protection, maintenance',
+    description:
+      'Use this for domestic abuse, immediate safety planning, protection orders, shelter support, maintenance, and related relief.',
+    nextSteps: ['Prioritize safety', 'Capture evidence carefully', 'Identify emergency support options'],
+  },
+  {
+    id: 'police',
+    title: 'Police / FIR',
+    shortDescription: 'FIR refusal, arrest, complaint escalation',
+    description:
+      'Use this for FIR refusal, wrongful detention, complaint acknowledgement issues, police inaction, and escalation planning.',
+    nextSteps: ['Write the timeline clearly', 'Ask for acknowledgement', 'Escalate through senior channels'],
+  },
+  {
+    id: 'cyber',
+    title: 'Cyber Crime',
+    shortDescription: 'UPI scams, account theft, online abuse',
+    description:
+      'Use this for fraud, impersonation, phishing, unauthorized access, harassment, payment disputes, and identity theft.',
+    nextSteps: ['Report quickly', 'Contact the bank or platform', 'Preserve IDs, screenshots, and timestamps'],
+  },
+];
+
+export const LEGAL_CATEGORY_MAP = Object.fromEntries(
+  CATEGORIES.map((category) => [category.id, category]),
+);
 
 export const SUPPORTED_LANGUAGES = [
   { value: 'English', label: 'English' },
@@ -101,135 +152,52 @@ export const SUPPORTED_LANGUAGES = [
   { value: 'Marathi', label: 'मराठी' },
 ];
 
-export const CATEGORIES = [
+export const RESOURCE_SOURCES = [
   {
-    id: 'property',
-    icon: '🏠',
-    title: 'Property Dispute',
-    shortDescription: 'Land, rent, eviction',
+    id: 'indiankanoon',
+    title: 'Indian Kanoon',
     description:
-      'Land encroachment, rent disputes, security deposits, illegal eviction, and inheritance conflicts.',
+      'Search judgments, orders, and legal documents through the documented token-based API integration layer.',
   },
   {
-    id: 'labour',
-    icon: '⚒',
-    title: 'Labour Rights',
-    shortDescription: 'Wages, dismissal',
+    id: 'ecourts',
+    title: 'eCourts India',
     description:
-      'Unpaid wages, wrongful termination, workplace harassment, PF or ESI violations, and contract disputes.',
-  },
-  {
-    id: 'consumer',
-    icon: '🛒',
-    title: 'Consumer Fraud',
-    shortDescription: 'Products, services',
-    description:
-      'Defective products, service fraud, overcharging, misleading advertisements, and refund disputes.',
-  },
-  {
-    id: 'domestic',
-    icon: '🛡',
-    title: 'Domestic Violence',
-    shortDescription: 'Protection, safety',
-    description:
-      'Protection orders, safe shelter rights, maintenance, and child-custody related safety concerns.',
-  },
-  {
-    id: 'police',
-    icon: '⚖',
-    title: 'Police / FIR',
-    shortDescription: 'Filing, arrest, bail',
-    description:
-      'FIR filing, wrongful arrest, bail rights, police misconduct, survivor protection, and victim rights.',
-  },
-  {
-    id: 'cyber',
-    icon: '💻',
-    title: 'Cyber Crime',
-    shortDescription: 'Online fraud, theft',
-    description:
-      'UPI scams, identity theft, social media abuse, fake job offers, extortion, and account compromise.',
+      'Use official eCourts public search pathways for case status and court-access workflows when a stable public API is unavailable.',
   },
 ];
 
-export const LEGAL_CATEGORY_MAP = Object.fromEntries(
-  CATEGORIES.map((category) => [category.id, category]),
-);
-
-export const IMPACT_STATS = [
-  { value: '40M+', label: 'Cases pending in Indian courts as of 2024' },
-  { value: '70%', label: 'Indians cannot afford a private lawyer' },
-  { value: '1:50K', label: 'Approximate judge-to-citizen ratio in India' },
-  { value: 'Rs 0', label: 'Cost to use NyayaSaathi, always free' },
-];
-
-export const TESTIMONIALS = [
+export const FOOTER_SECTIONS = [
   {
-    quote:
-      "My employer did not pay me for 3 months. NyayaSaathi showed me where to complain and gave me the exact letter to send.",
-    name: 'Ravi Kumar',
-    location: 'Factory Worker, Bengaluru',
-    avatar: 'R',
+    title: 'Product',
+    links: [
+      { label: 'Features', to: '/features' },
+      { label: 'Categories', to: '/categories' },
+      { label: 'Assistant', to: '/assistant' },
+      { label: 'Resources', to: '/resources' },
+    ],
   },
   {
-    quote:
-      'मुझे अपने अधिकार समझ नहीं आ रहे थे. NyayaSaathi explained everything in Hindi and even surfaced shelter support numbers.',
-    name: 'Sunita Devi',
-    location: 'Homemaker, Lucknow',
-    avatar: 'S',
-  },
-  {
-    quote:
-      'I lost money in a UPI scam and the app gave me a structured complaint draft plus the next authority to escalate to.',
-    name: 'Anjali Sharma',
-    location: 'Teacher, Chennai',
-    avatar: 'A',
+    title: 'Legal Focus',
+    links: CATEGORIES.map((category) => ({
+      label: category.title,
+      to: `/categories/${category.id}`,
+    })),
   },
 ];
-
-export const FOOTER_LINKS = {
-  legalAreas: [
-    'Property Disputes',
-    'Labour Rights',
-    'Consumer Fraud',
-    'Domestic Violence',
-    'Police / FIR',
-    'Cyber Crime',
-  ],
-  languages: [
-    'English',
-    'Hindi · हिंदी',
-    'Kannada · ಕನ್ನಡ',
-    'Tamil · தமிழ்',
-    'Telugu · తెలుగు',
-    'Bengali · বাংলা',
-  ],
-  resources: [
-    'NALSA Legal Aid',
-    'National Consumer Helpline',
-    'Cyber Crime Portal',
-    "Women's Helpline 181",
-    'eCourts India',
-  ],
-};
 
 export const APP_COPY = {
-  heroBadge: 'AI-Powered · Free Legal Aid · For Every Indian',
-  heroTitleLineOne: 'Your Rights.',
-  heroTitleLineTwo: 'Simply Explained.',
-  heroTitleLineThree: 'For Free.',
-  heroDescription:
-    'Millions of Indians face legal battles alone, too poor for lawyers and too confused by legal jargon. NyayaSaathi is an AI-powered legal companion built for that gap.',
-  heroPrimaryCta: 'Get Free Legal Guidance',
-  heroSecondaryCta: 'See How It Works',
-  heroScrollHint: 'Scroll to explore',
-  appHeadline: 'Describe Your Problem. Get Help.',
-  appDescription:
-    "Our AI reads Indian law so you don't have to. Free, private, and available 24/7 in your language.",
-  privacyTitle: 'Your Privacy Is Protected',
-  privacyDescription:
-    'Queries stay inside the session flow and the architecture is ready for secure API integration later.',
-  queryPlaceholder:
-    'Example: My landlord has not returned my Rs 40,000 security deposit for 3 months after I vacated the house. What can I do?',
+  productName: 'NyayaSaathi',
+  homeEyebrow: 'AI-guided legal navigation for India',
+  homeTitle: 'A clearer path from confusion to legal next steps.',
+  homeDescription:
+    'NyayaSaathi now uses routed journeys, saved user context, and source-backed follow-up so people are not forced to decode everything from one overloaded dashboard.',
+  homePrimaryCta: 'Start with Google',
+  homeSecondaryCta: 'Explore Features',
+  assistantTitle: 'Legal Assistant Workspace',
+  assistantDescription:
+    'Describe the situation, review guidance, and then validate with connected research sources.',
+  resourceTitle: 'Legal Research & Court Access',
+  resourceDescription:
+    'Search Indian Kanoon through the backend integration and move to official eCourts access points for public case-status workflows.',
 };
-

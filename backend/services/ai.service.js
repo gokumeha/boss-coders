@@ -1,14 +1,121 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { LEGAL_CATEGORY_MAP } from '../../shared/siteContent.js';
 import { formatLegalResponse } from '../utils/formatter.js';
 
+// ---------------------------------------------------------------------------
+// Gemini client (lazy – only created when a key is present)
+// ---------------------------------------------------------------------------
+let geminiModel = null;
+
+function getGeminiModel() {
+  if (geminiModel) return geminiModel;
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+  const genAI = new GoogleGenerativeAI(apiKey);
+  geminiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  return geminiModel;
+}
+
+// ---------------------------------------------------------------------------
+// Prompt builder
+// ---------------------------------------------------------------------------
+function buildPrompt({ categoryTitle, language, query }) {
+  return `You are NyayaSaathi, an Indian legal guidance assistant. A citizen has described a real legal situation and you must analyse it carefully and provide accurate, actionable guidance in ${language}.
+
+Category: ${categoryTitle}
+Citizen's situation: "${query}"
+
+IMPORTANT: If the input above is gibberish, random characters, or clearly not a real legal situation, respond ONLY with this exact JSON and nothing else:
+{"error": "Please describe your actual legal situation in order to receive guidance."}
+
+Otherwise, respond ONLY with a valid JSON object (no markdown, no code fences) with these exact keys:
+{
+  "summary": "2-3 sentence plain-language summary of the situation and what matters most",
+  "rightsList": ["right 1", "right 2", "right 3"],
+  "laws": ["relevant Indian law 1", "relevant Indian law 2"],
+  "steps": ["action step 1", "action step 2", "action step 3", "action step 4"],
+  "urgency": "low|medium|high",
+  "authority": "which authority / office to approach first",
+  "draft": "a short formal complaint letter draft addressed to the relevant authority",
+  "helplines": [{"name": "helpline name", "number": "number or website"}]
+}
+
+Base your answer strictly on Indian law. Be specific to the situation described. Respond in ${language}.`;
+}
+
+// ---------------------------------------------------------------------------
+// Gibberish / validity detection (basic heuristic as second safety net)
+// ---------------------------------------------------------------------------
+function looksLikeGibberish(query) {
+  const cleaned = query.trim().toLowerCase();
+
+  // Too short to be a real description
+  if (cleaned.length < 15) return true;
+
+  // Almost entirely non-alphabetic
+  const alphaChars = (cleaned.match(/[a-z\u0900-\u097f\u0c00-\u0c7f\u0b80-\u0bff\u0980-\u09ff\u0c80-\u0cff]/g) || []).length;
+  if (alphaChars / cleaned.length < 0.4) return true;
+
+  // No spaces at all for long strings (unlikely to be real sentences)
+  if (cleaned.length > 20 && !cleaned.includes(' ')) return true;
+
+  // Repeated character pattern (aaaaaaa, fvfwww)
+  if (/(.)\1{4,}/.test(cleaned)) return true;
+
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// Gemini-powered guidance
+// ---------------------------------------------------------------------------
+async function getLegalGuidanceFromGemini({ categoryTitle, language, query }) {
+  const model = getGeminiModel();
+  if (!model) return null; // No key configured – fall through to mock
+
+  const prompt = buildPrompt({ categoryTitle, language, query });
+  const result = await model.generateContent(prompt);
+  const text = result.response.text().trim();
+
+  // Strip markdown code fences if Gemini wraps the JSON
+  const jsonText = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonText);
+  } catch {
+    console.error('[gemini] Failed to parse JSON response:', text.slice(0, 200));
+    return null;
+  }
+
+  // Gemini decided the query was gibberish / invalid
+  if (parsed.error) {
+    throw Object.assign(new Error(parsed.error), { statusCode: 422 });
+  }
+
+  return parsed;
+}
+
+// ---------------------------------------------------------------------------
+// Mock fallback (category-based, used only when Gemini is not configured)
+// ---------------------------------------------------------------------------
 const LANGUAGE_INTROS = {
   English: 'Preferred language: English.',
-  Hindi: 'Preferred language: Hindi.',
-  Kannada: 'Preferred language: Kannada.',
-  Tamil: 'Preferred language: Tamil.',
-  Telugu: 'Preferred language: Telugu.',
-  Bengali: 'Preferred language: Bengali.',
-  Marathi: 'Preferred language: Marathi.',
+  Hindi: 'पसंदीदा भाषा: हिंदी।',
+  Kannada: 'ಆಯ್ಕೆಯ ಭಾಷೆ: ಕನ್ನಡ.',
+  Tamil: 'விருப்ப மொழி: தமிழ்.',
+  Telugu: 'ఎంచుకున్న భాష: తెలుగు.',
+  Bengali: 'পছন্দের ভাষা: বাংলা।',
+  Marathi: 'निवडलेली भाषा: मराठी.',
+};
+
+const LANGUAGE_SUMMARY_PREFIX = {
+  English: 'Issue noted',
+  Hindi: 'दर्ज की गई समस्या',
+  Kannada: 'ದಾಖಲಾದ ಸಮಸ್ಯೆ',
+  Tamil: 'பதிவுசெய்யப்பட்ட பிரச்சினை',
+  Telugu: 'నమోదైన సమస్య',
+  Bengali: 'নথিভুক্ত সমস্যা',
+  Marathi: 'नोंदवलेली अडचण',
 };
 
 const MOCK_GUIDANCE_BY_CATEGORY = {
@@ -177,56 +284,58 @@ const MOCK_GUIDANCE_BY_CATEGORY = {
 
 function buildDraft({ categoryTitle, language, query }) {
   const shortFacts = query.replace(/\s+/g, ' ').trim().slice(0, 240);
-
-  return `To,
-The Concerned Authority
-
-Subject: Complaint regarding ${categoryTitle}
-
-${LANGUAGE_INTROS[language] || LANGUAGE_INTROS.English}
-
-Respected Sir/Madam,
-
-I am submitting this complaint regarding the following issue:
-${shortFacts}
-
-I request that the matter be reviewed and that appropriate legal action or administrative support be provided at the earliest.
-
-Please acknowledge receipt of this complaint and inform me of the next steps.
-
-Sincerely,
-[FULL NAME]
-[ADDRESS]
-[PHONE]
-[DATE]`;
+  return `To,\nThe Concerned Authority\n\nSubject: Complaint regarding ${categoryTitle}\n\n${LANGUAGE_INTROS[language] || LANGUAGE_INTROS.English}\n\nRespected Sir/Madam,\n\nI am submitting this complaint regarding the following issue:\n${shortFacts}\n\nI request that the matter be reviewed and that appropriate legal action or administrative support be provided at the earliest.\n\nPlease acknowledge receipt of this complaint and inform me of the next steps.\n\nSincerely,\n[FULL NAME]\n[ADDRESS]\n[PHONE]\n[DATE]`;
 }
 
-export async function getLegalGuidance({ category, language, query }) {
+function getMockGuidance({ category, language, query }) {
   const categoryConfig = MOCK_GUIDANCE_BY_CATEGORY[category];
   const categoryTitle = LEGAL_CATEGORY_MAP[category]?.title || 'Legal Issue';
-  const isDev = process.env.NODE_ENV !== 'production';
+  const personalizedSummary = `${categoryConfig.summary} ${
+    LANGUAGE_SUMMARY_PREFIX[language] || LANGUAGE_SUMMARY_PREFIX.English
+  }: "${query.replace(/\s+/g, ' ').trim().slice(0, 140)}".`;
 
-  if (isDev) {
-    console.log('[mock-ai] Generating response', {
-      category,
-      language,
-      queryLength: query.trim().length,
-    });
-  }
-
-  const personalizedSummary = `${categoryConfig.summary} Issue noted: "${query
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 140)}".`;
-
-  return formatLegalResponse({
+  return {
     ...categoryConfig,
     summary: personalizedSummary,
     rights: categoryConfig.rightsList.join(' '),
-    draft: buildDraft({
-      categoryTitle,
-      language,
-      query,
-    }),
-  });
+    draft: buildDraft({ categoryTitle, language, query }),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Public export
+// ---------------------------------------------------------------------------
+export async function getLegalGuidance({ category, language, query }) {
+  const categoryTitle = LEGAL_CATEGORY_MAP[category]?.title || 'Legal Issue';
+  const isDev = process.env.NODE_ENV !== 'production';
+
+  // Basic gibberish guard (applies even without Gemini)
+  if (looksLikeGibberish(query)) {
+    const err = new Error('Please describe your actual legal situation clearly so we can provide relevant guidance.');
+    err.statusCode = 422;
+    throw err;
+  }
+
+  // Try Gemini first
+  try {
+    const geminiResult = await getLegalGuidanceFromGemini({ categoryTitle, language, query });
+    if (geminiResult) {
+      if (isDev) console.log('[gemini] Response received for category:', category);
+      return formatLegalResponse({
+        ...geminiResult,
+        rights: Array.isArray(geminiResult.rightsList)
+          ? geminiResult.rightsList.join(' ')
+          : geminiResult.rights || '',
+      });
+    }
+  } catch (error) {
+    // Re-throw validation errors (gibberish detected by Gemini)
+    if (error.statusCode === 422) throw error;
+    // Log other Gemini errors and fall through to mock
+    console.error('[gemini] Error, falling back to mock:', error.message);
+  }
+
+  // Fallback: mock data (only used when GEMINI_API_KEY is not set)
+  if (isDev) console.log('[mock-ai] Generating fallback response for category:', category);
+  return formatLegalResponse(getMockGuidance({ category, language, query }));
 }

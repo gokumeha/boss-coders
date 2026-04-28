@@ -1,52 +1,82 @@
-<<<<<<< HEAD
 # NyayaSaathi
 
-NyayaSaathi has been refactored from a single HTML file into a scalable full-stack application with a React frontend, an Express backend, and a shared contract layer for reusable content and validation.
+NyayaSaathi is now a routed full-stack web application instead of a single long dashboard page. The app uses:
 
-## Folder Structure
+- React + Vite for the frontend
+- React Router for multi-page navigation
+- Firebase Authentication + Firestore for Google sign-in and saved user activity
+- Node.js + Express as the integration layer for legal guidance and external legal research providers
+- Indian Kanoon integration through a backend token-based API adapter
+- Official eCourts access pathways through a dedicated adapter layer
+
+## Updated Product Flow
+
+Instead of putting everything on one page, the app now uses dedicated routes:
+
+- `/` Landing page
+- `/features` Feature overview
+- `/features/:featureId` Feature detail pages
+- `/categories` Category overview
+- `/categories/:categoryId` Category detail pages
+- `/signin` Google sign-in
+- `/assistant` Protected legal assistant workspace
+- `/resources` Protected legal research and court access page
+
+## Project Structure
 
 ```text
-project-root/
+hackathon/
   frontend/
     index.html
     package.json
     vite.config.js
     src/
       components/
-        AiShowcase.jsx
         AppForm.jsx
-        Categories.jsx
-        Features.jsx
         Footer.jsx
-        Hero.jsx
-        HeroParticles.jsx
         HeroScene.jsx
-        HowItWorks.jsx
-        Impact.jsx
         Navbar.jsx
+        ProtectedRoute.jsx
         ResultDisplay.jsx
         ScalesCanvas.jsx
-        Testimonials.jsx
+      context/
+        AuthContext.jsx
+        LanguageContext.jsx
       hooks/
         useApi.js
+        useAssistantHistory.js
         useForm.js
+      lib/
+        firebase.js
       pages/
+        AssistantPage.jsx
+        CategoriesPage.jsx
+        CategoryDetailPage.jsx
+        FeatureDetailPage.jsx
+        FeaturesPage.jsx
         Home.jsx
+        ResourcesPage.jsx
+        SignInPage.jsx
       services/
         api.js
+        firestore.js
       styles/
         global.css
       App.jsx
       main.jsx
   backend/
-    package.json
     server.js
     controllers/
       legal.controller.js
+      research.controller.js
     routes/
       legal.routes.js
+      research.routes.js
     services/
       ai.service.js
+      ecourts.service.js
+      indiankanoon.service.js
+      research.service.js
     utils/
       formatter.js
   shared/
@@ -55,15 +85,21 @@ project-root/
   README.md
 ```
 
-## Frontend
+## Frontend Setup
 
-- React + Vite application
-- Reusable components for every major landing-page section
-- Form state managed with hooks instead of DOM manipulation
-- Centralized API layer using `VITE_API_URL`
-- Modular canvas animation components using `three`
+Create `frontend/.env` from `frontend/.env.example`:
 
-### Run Frontend
+```bash
+VITE_API_URL=http://localhost:5000
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+```
+
+Run the frontend:
 
 ```bash
 cd frontend
@@ -71,14 +107,21 @@ npm install
 npm run dev
 ```
 
-## Backend
+Note for Windows PowerShell:
+If `npm` is blocked by execution policy, use `npm.cmd install` and `npm.cmd run dev`.
 
-- Express API with route, controller, service, and formatter separation
-- `POST /api/legal-query` returns mock legal guidance
-- Shared validation contract for category, language, and query rules
-- `ai.service.js` is intentionally structured so an AI provider can be plugged in later
+## Backend Setup
 
-### Run Backend
+Create `backend/.env` from `backend/.env.example`:
+
+```bash
+PORT=5000
+API_KEYS=
+IK_API_TOKEN=
+NODE_ENV=development
+```
+
+Run the backend:
 
 ```bash
 cd backend
@@ -86,70 +129,105 @@ npm install
 node server.js
 ```
 
-## API Contract
+## Firebase Usage
 
-### Request
+Firebase is used for:
+
+- Google sign-in
+- Persisting the signed-in user profile
+- Saving recent assistant activity to Firestore
+
+The relevant frontend files are:
+
+- [AuthContext.jsx](C:\Users\Senhan%20Salavudheen\OneDrive\Desktop\Downloads\hackathon\frontend\src\context\AuthContext.jsx)
+- [firebase.js](C:\Users\Senhan%20Salavudheen\OneDrive\Desktop\Downloads\hackathon\frontend\src\lib\firebase.js)
+- [firestore.js](C:\Users\Senhan%20Salavudheen\OneDrive\Desktop\Downloads\hackathon\frontend\src\services\firestore.js)
+
+## Indian Kanoon Integration
+
+The backend exposes a provider adapter for Indian Kanoon:
+
+- [indiankanoon.service.js](C:\Users\Senhan%20Salavudheen\OneDrive\Desktop\Downloads\hackathon\backend\services\indiankanoon.service.js)
+
+It uses `IK_API_TOKEN` on the server and returns mapped result cards with source links.
+
+Routes:
+
+- `POST /api/research/search`
+- `GET /api/research/status`
+
+Payload example:
+
+```json
+{
+  "source": "indiankanoon",
+  "query": "consumer protection refund delay"
+}
+```
+
+## eCourts Integration Reality
+
+An official public eCourts portal is integrated through a dedicated adapter:
+
+- [ecourts.service.js](C:\Users\Senhan%20Salavudheen\OneDrive\Desktop\Downloads\hackathon\backend\services\ecourts.service.js)
+
+Important:
+
+- The code does not pretend there is a stable public eCourts API when one was not found.
+- Instead, it exposes official search-path guidance and portal links through the resources page and assistant result surface.
+- This keeps the architecture honest and makes it easy to swap in a sanctioned API later if one becomes available.
+
+## Assistant API
+
+Request:
 
 ```json
 {
   "category": "property",
-  "language": "English",
+  "language": "Hindi",
   "query": "My landlord has not returned my deposit."
 }
 ```
 
-### Response
+Response shape:
 
 ```json
 {
-  "summary": "Mock summary",
-  "rights": "Plain-language rights summary",
-  "rightsList": ["Right 1", "Right 2"],
-  "laws": ["Law 1", "Law 2"],
-  "steps": ["Step 1", "Step 2"],
-  "urgency": "medium",
-  "authority": "Relevant authority",
-  "draft": "Complaint draft text",
-  "helplines": [{ "name": "NALSA", "number": "15100 / nalsa.gov.in" }]
+  "summary": "string",
+  "rights": "string",
+  "rightsList": ["string"],
+  "laws": ["string"],
+  "steps": ["string"],
+  "urgency": "low|medium|high",
+  "authority": "string",
+  "draft": "string",
+  "helplines": [{ "name": "string", "number": "string" }],
+  "research": {
+    "indiankanoon": {
+      "status": "ok|unconfigured|error",
+      "message": "string",
+      "documents": []
+    },
+    "ecourts": {
+      "status": "official-portal",
+      "portalUrl": "string",
+      "note": "string",
+      "searchModes": ["string"]
+    }
+  }
 }
 ```
 
-The core fields requested for future API compatibility are `rights`, `steps`, `urgency`, `authority`, and `draft`. The extra fields support the richer UI already present in the original concept.
+## Verified
 
-## Environment Variables
+The current code was verified with:
 
-Frontend:
+- `npm.cmd run build` in `frontend`
+- `node server.js` in `backend`
 
-```bash
-VITE_API_URL=http://localhost:5000
-```
+## Notes
 
-Backend:
-
-```bash
-PORT=5000
-API_KEYS=
-NODE_ENV=development
-```
-
-## Extension Notes
-
-- Replace the mock logic in [backend/services/ai.service.js](C:\Users\Senhan Salavudheen\OneDrive\Desktop\Downloads\hackathon\backend\services\ai.service.js) with an AI provider client when ready.
-- Shared content and validation live in [shared/siteContent.js](C:\Users\Senhan Salavudheen\OneDrive\Desktop\Downloads\hackathon\shared\siteContent.js) and [shared/legalContract.js](C:\Users\Senhan Salavudheen\OneDrive\Desktop\Downloads\hackathon\shared\legalContract.js).
-- The frontend only talks to the backend through [frontend/src/services/api.js](C:\Users\Senhan Salavudheen\OneDrive\Desktop\Downloads\hackathon\frontend\src\services\api.js), making API swaps easier later.
-=======
-# ⚖️ NyayaSaathi
-
-NyayaSaathi is an AI-powered legal aid platform built to help Indian citizens understand their rights without needing a lawyer.  
-It simplifies complex legal information into easy, actionable guidance in multiple Indian languages.  
-Users can describe their problem in plain language and receive relevant laws, rights, and step-by-step actions.  
-The platform also generates ready-to-file complaint drafts and suggests the correct authority to approach.  
-It supports categories like property disputes, labour issues, consumer fraud, domestic violence, FIR, and cybercrime.  
-NyayaSaathi aims to bridge the justice gap for people who cannot afford legal assistance.  
-The platform is completely free, private, and accessible to everyone.  
-Built using HTML, CSS, JavaScript, Three.js, and AI APIs.  
-Designed with a clean, user-friendly interface for first-time legal users.  
-This project was developed for a social impact hackathon.  
-
-👥 Team: Boss Coders
->>>>>>> f8e7f23ec79b14cea9ccc1cc610e221e21fbe489
+- Language support is now connected to app state, routed pages, and assistant submission instead of being decorative.
+- Google sign-in works once Firebase web credentials are added.
+- Indian Kanoon search works once `IK_API_TOKEN` is configured.
+- eCourts is integrated through official portal workflows until a stable public API contract is available.

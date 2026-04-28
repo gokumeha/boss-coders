@@ -1,48 +1,39 @@
-import { FOOTER_LINKS } from '@shared/siteContent';
+import { Link } from 'react-router-dom';
 
-function FooterColumn({ title, items }) {
-  return (
-    <div className="footer-col">
-      <h4>{title}</h4>
-      {items.map((item) => (
-        <a href="#app" key={item}>
-          {item}
-        </a>
-      ))}
-    </div>
-  );
-}
+import { FOOTER_SECTIONS } from '@shared/siteContent';
 
 export default function Footer() {
   return (
-    <footer>
-      <div className="container">
-        <div className="footer-grid">
-          <div className="footer-brand">
-            <div className="nav-logo footer-logo">
-              <div className="nav-logo-icon">⚖</div>
-              <div className="nav-logo-text footer-logo-text">
-                Nyaya<span>Saathi</span>
-              </div>
-            </div>
-            <p>
-              Free AI-powered legal aid for every Indian. Know your rights, draft
-              your complaint, and reach the right authority without legal jargon.
-            </p>
-            <p className="footer-note">
-              Built for social impact with an architecture that is ready for AI APIs.
-            </p>
+    <footer className="site-footer">
+      <div className="footer-top">
+        <div className="footer-brand">
+          <div className="brand-mark brand-mark--footer">
+            <span className="brand-icon">NS</span>
+            <span>
+              Nyaya<span className="brand-accent">Saathi</span>
+            </span>
           </div>
-
-          <FooterColumn title="Legal Areas" items={FOOTER_LINKS.legalAreas} />
-          <FooterColumn title="Languages" items={FOOTER_LINKS.languages} />
-          <FooterColumn title="Resources" items={FOOTER_LINKS.resources} />
+          <p>
+            Guided legal navigation, structured intake, and research-aware next
+            steps for people who need clarity before they need a lawyer.
+          </p>
         </div>
 
-        <div className="footer-bottom">
-          <span>© 2026 NyayaSaathi. General legal information only.</span>
-          <span>Made for accessible justice.</span>
-        </div>
+        {FOOTER_SECTIONS.map((section) => (
+          <div className="footer-column" key={section.title}>
+            <h4>{section.title}</h4>
+            {section.links.map((link) => (
+              <Link key={link.to} to={link.to}>
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <div className="footer-bottom">
+        <span>General legal information only, not formal legal advice.</span>
+        <span>Built for scalable legal access.</span>
       </div>
     </footer>
   );

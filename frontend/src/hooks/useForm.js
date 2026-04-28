@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { MAX_QUERY_LENGTH } from '@shared/legalContract';
 import { SUPPORTED_LANGUAGES } from '@shared/siteContent';
@@ -42,8 +42,8 @@ function buildSteps({ category, language, query, hasResult }) {
   });
 }
 
-export function useForm() {
-  const defaultLanguage = SUPPORTED_LANGUAGES[0].value;
+export function useForm(initialLanguage = SUPPORTED_LANGUAGES[0].value) {
+  const defaultLanguage = initialLanguage || SUPPORTED_LANGUAGES[0].value;
   const [language, setLanguage] = useState(defaultLanguage);
   const [category, setCategory] = useState('');
   const [query, setQuery] = useState('');
@@ -65,6 +65,10 @@ export function useForm() {
     setCategory('');
     setQuery('');
   }
+
+  useEffect(() => {
+    setLanguage(defaultLanguage);
+  }, [defaultLanguage]);
 
   return {
     category,

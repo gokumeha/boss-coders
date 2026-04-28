@@ -1,7 +1,9 @@
+import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
 
 import legalRoutes from './routes/legal.routes.js';
+import researchRoutes from './routes/research.routes.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
@@ -15,6 +17,7 @@ app.get('/api/health', (_request, response) => {
 });
 
 app.use('/api', legalRoutes);
+app.use('/api/research', researchRoutes);
 
 app.use((request, response) => {
   response.status(404).json({
@@ -36,4 +39,3 @@ app.use((error, _request, response, _next) => {
 app.listen(PORT, () => {
   console.log(`[server] NyayaSaathi API listening on http://localhost:${PORT}`);
 });
-

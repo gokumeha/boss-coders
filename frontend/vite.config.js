@@ -17,4 +17,29 @@ export default defineConfig({
       allow: [path.resolve(rootDirectory, '..')],
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/three')) {
+            return 'three';
+          }
+
+          if (id.includes('node_modules/firebase')) {
+            return 'firebase';
+          }
+
+          if (id.includes('node_modules/react-router')) {
+            return 'router';
+          }
+
+          if (id.includes('node_modules/react')) {
+            return 'react-vendor';
+          }
+
+          return undefined;
+        },
+      },
+    },
+  },
 });

@@ -1,5 +1,7 @@
 import { validateLegalQueryPayload } from '../../shared/legalContract.js';
 import { getLegalGuidance } from '../services/ai.service.js';
+import { buildEcourtsSupport } from '../services/ecourts.service.js';
+import { searchIndianKanoon } from '../services/indiankanoon.service.js';
 
 export async function postLegalQuery(request, response, next) {
   try {
@@ -10,11 +12,20 @@ export async function postLegalQuery(request, response, next) {
       return;
     }
 
-    const legalGuidance = await getLegalGuidance(request.body);
+    const [legalGuidance, indianKanoon, ecourts] = await Promise.all([
+      getLegalGuidance(request.body),
+      searchIndianKanoon(request.body.query),
+      buildEcourtsSupport(request.body.query),
+    ]);
 
-    response.status(200).json(legalGuidance);
+    response.status(200).json({
+      ...legalGuidance,
+      research: {
+        indiankanoon: indianKanoon,
+        ecourts,
+      },
+    });
   } catch (error) {
     next(error);
   }
 }
-
