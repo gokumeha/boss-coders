@@ -16,6 +16,7 @@ function getUrgencyLabel(urgency, copy) {
 export default function ResultDisplay({
   result,
   submittedCase,
+  workspaceOwnerId,
   onApplySuggestedCategory,
   onReset,
 }) {
@@ -105,7 +106,11 @@ export default function ResultDisplay({
         </ol>
       </section>
 
-      <AssistantActionStudio result={result} submittedCase={submittedCase} />
+      <AssistantActionStudio
+        result={result}
+        submittedCase={submittedCase}
+        workspaceOwnerId={workspaceOwnerId}
+      />
 
       <section className="result-section">
         <h3>{copy.result.authority}</h3>

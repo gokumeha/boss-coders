@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -92,18 +92,18 @@ export default function SignInPage() {
           </article>
 
           <article className="auth-stat-sheet">
-            <div className="auth-stat-sheet__item">
+            <Link className="auth-stat-sheet__item auth-stat-sheet__item--link" to="/assistant">
               <strong>AI Guidance</strong>
               <span>Plain-language legal direction for common issues</span>
-            </div>
-            <div className="auth-stat-sheet__item">
+            </Link>
+            <Link className="auth-stat-sheet__item auth-stat-sheet__item--link" to="/categories">
               <strong>Case Routing</strong>
               <span>Category-first flows for property, labour, fraud, police, and more</span>
-            </div>
-            <div className="auth-stat-sheet__item">
+            </Link>
+            <Link className="auth-stat-sheet__item auth-stat-sheet__item--link" to="/resources">
               <strong>Research Links</strong>
               <span>Indian Kanoon and official eCourts pathways in one platform</span>
-            </div>
+            </Link>
           </article>
         </aside>
       </section>

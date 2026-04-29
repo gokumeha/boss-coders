@@ -9,6 +9,7 @@ export default function AppForm({
   form,
   result,
   submittedCase,
+  workspaceOwnerId,
   loading,
   error,
   onFieldChange,
@@ -277,6 +278,7 @@ export default function AppForm({
               onReset={onReset}
               result={result}
               submittedCase={submittedCase}
+              workspaceOwnerId={workspaceOwnerId}
             />
           </div>
         ) : null}

@@ -9,6 +9,15 @@ import {
   downloadTextFile,
   formatTimelineDate,
 } from '../lib/assistantArtifacts';
+import {
+  buildCaseWorkspaceExport,
+  buildWorkspaceStorageKey,
+  clearWorkspaceSnapshot,
+  createEvidenceItems,
+  formatEvidenceSize,
+  readWorkspaceSnapshot,
+  saveWorkspaceSnapshot,
+} from '../lib/caseWorkspace';
 
 function sortTimelineEntries(entries) {
   return [...entries].sort((left, right) => {
@@ -20,14 +29,31 @@ function sortTimelineEntries(entries) {
   });
 }
 
-export default function AssistantActionStudio({ result, submittedCase }) {
+function buildDefaultWorkspaceTitle(categoryTitle) {
+  return `${categoryTitle} workspace`;
+}
+
+export default function AssistantActionStudio({
+  result,
+  submittedCase,
+  workspaceOwnerId,
+}) {
   const { copy } = useLanguage();
   const [timelineForm, setTimelineForm] = useState({ date: '', detail: '' });
   const [timelineEntries, setTimelineEntries] = useState([]);
   const [draftVisible, setDraftVisible] = useState(false);
   const [checkedItems, setCheckedItems] = useState({});
+  const [workspaceTitle, setWorkspaceTitle] = useState('');
+  const [caseNotes, setCaseNotes] = useState('');
+  const [evidenceItems, setEvidenceItems] = useState([]);
+  const [workspaceReady, setWorkspaceReady] = useState(false);
+  const [workspaceSavedAt, setWorkspaceSavedAt] = useState(null);
 
   const categoryTitle = LEGAL_CATEGORY_MAP[submittedCase?.category]?.title || 'Legal Issue';
+  const storageKey = useMemo(
+    () => buildWorkspaceStorageKey(workspaceOwnerId, submittedCase),
+    [submittedCase, workspaceOwnerId],
+  );
 
   const checklistItems = useMemo(
     () =>
@@ -56,12 +82,37 @@ export default function AssistantActionStudio({ result, submittedCase }) {
     [checkedItems],
   );
 
+  const groupedEvidence = useMemo(() => {
+    return evidenceItems.reduce((groups, item) => {
+      const key = item.group || 'Other evidence';
+
+      if (!groups[key]) {
+        groups[key] = [];
+      }
+
+      groups[key].push(item);
+      return groups;
+    }, {});
+  }, [evidenceItems]);
+
   useEffect(() => {
-    setTimelineEntries([]);
+    if (!submittedCase) {
+      return;
+    }
+
+    const fallbackTitle = buildDefaultWorkspaceTitle(categoryTitle);
+    const snapshot = readWorkspaceSnapshot(storageKey);
+
     setTimelineForm({ date: '', detail: '' });
-    setDraftVisible(false);
-    setCheckedItems({});
-  }, [submittedCase?.category, submittedCase?.query, submittedCase?.submittedAt]);
+    setDraftVisible(snapshot?.draftVisible || false);
+    setTimelineEntries(snapshot?.timelineEntries || []);
+    setCheckedItems(snapshot?.checkedItems || {});
+    setWorkspaceTitle(snapshot?.workspaceTitle || fallbackTitle);
+    setCaseNotes(snapshot?.caseNotes || '');
+    setEvidenceItems(snapshot?.evidenceItems || []);
+    setWorkspaceSavedAt(snapshot?.savedAt || null);
+    setWorkspaceReady(true);
+  }, [categoryTitle, storageKey, submittedCase]);
 
   useEffect(() => {
     setCheckedItems((current) => {
@@ -74,6 +125,36 @@ export default function AssistantActionStudio({ result, submittedCase }) {
       return nextState;
     });
   }, [checklistItems]);
+
+  useEffect(() => {
+    if (!workspaceReady || !submittedCase || !storageKey) {
+      return;
+    }
+
+    const savedAt = Date.now();
+    const snapshot = {
+      workspaceTitle,
+      caseNotes,
+      timelineEntries,
+      checkedItems,
+      draftVisible,
+      evidenceItems,
+      savedAt,
+    };
+
+    saveWorkspaceSnapshot(storageKey, snapshot);
+    setWorkspaceSavedAt(savedAt);
+  }, [
+    caseNotes,
+    checkedItems,
+    draftVisible,
+    evidenceItems,
+    storageKey,
+    submittedCase,
+    timelineEntries,
+    workspaceReady,
+    workspaceTitle,
+  ]);
 
   function handleTimelineSubmit(event) {
     event.preventDefault();
@@ -98,6 +179,20 @@ export default function AssistantActionStudio({ result, submittedCase }) {
     setTimelineEntries((current) => current.filter((entry) => entry.id !== entryId));
   }
 
+  function handleEvidenceUpload(event) {
+    const nextItems = createEvidenceItems(event.target.files || []);
+
+    if (nextItems.length) {
+      setEvidenceItems((current) => [...nextItems, ...current]);
+    }
+
+    event.target.value = '';
+  }
+
+  function handleEvidenceRemove(itemId) {
+    setEvidenceItems((current) => current.filter((item) => item.id !== itemId));
+  }
+
   function handleChecklistDownload() {
     const content = [
       `${categoryTitle} checklist`,
@@ -119,6 +214,35 @@ export default function AssistantActionStudio({ result, submittedCase }) {
 
   function handleDraftDownload() {
     downloadTextFile('nyayasaathi-draft-letter.txt', generatedDraft);
+  }
+
+  function handleWorkspaceExport() {
+    const content = buildCaseWorkspaceExport({
+      categoryTitle,
+      submittedCase,
+      result,
+      workspaceTitle,
+      caseNotes,
+      timelineEntries,
+      checklistItems,
+      checkedItems,
+      evidenceItems,
+      generatedDraft,
+    });
+
+    downloadTextFile('nyayasaathi-case-workspace.txt', content);
+  }
+
+  function handleWorkspaceClear() {
+    setWorkspaceTitle(buildDefaultWorkspaceTitle(categoryTitle));
+    setCaseNotes('');
+    setTimelineEntries([]);
+    setTimelineForm({ date: '', detail: '' });
+    setDraftVisible(false);
+    setCheckedItems({});
+    setEvidenceItems([]);
+    setWorkspaceSavedAt(null);
+    clearWorkspaceSnapshot(storageKey);
   }
 
   return (
@@ -290,6 +414,119 @@ export default function AssistantActionStudio({ result, submittedCase }) {
           </div>
         </article>
       </div>
+
+      <article className="assistant-workspace-card iridescent-panel">
+        <div className="assistant-tool-card__head">
+          <div>
+            <p className="document-kicker">{copy.result.workspaceKicker}</p>
+            <h4>{copy.result.workspaceTitle}</h4>
+          </div>
+          <span className="status-pill status-pill--soft">
+            {workspaceSavedAt
+              ? `${copy.result.workspaceSavedLabel}: ${new Date(workspaceSavedAt).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}`
+              : copy.result.workspaceReadyLabel}
+          </span>
+        </div>
+
+        <p>{copy.result.workspaceDescription}</p>
+
+        <div className="assistant-workspace-grid">
+          <section className="assistant-workspace-panel">
+            <label className="field">
+              <span>{copy.result.workspaceNameLabel}</span>
+              <input
+                className="field-control"
+                type="text"
+                value={workspaceTitle}
+                onChange={(event) => setWorkspaceTitle(event.target.value)}
+              />
+            </label>
+
+            <label className="field">
+              <span>{copy.result.workspaceNotesLabel}</span>
+              <textarea
+                className="field-textarea field-textarea--compact"
+                placeholder={copy.result.workspaceNotesPlaceholder}
+                value={caseNotes}
+                onChange={(event) => setCaseNotes(event.target.value)}
+              />
+            </label>
+
+            <div className="panel-actions">
+              <button
+                className="secondary-action"
+                type="button"
+                onClick={handleWorkspaceExport}
+              >
+                {copy.result.downloadWorkspace}
+              </button>
+              <button
+                className="secondary-action"
+                type="button"
+                onClick={handleWorkspaceClear}
+              >
+                {copy.result.clearWorkspace}
+              </button>
+            </div>
+          </section>
+
+          <section className="assistant-workspace-panel assistant-workspace-panel--evidence">
+            <div className="assistant-tool-note assistant-tool-note--soft">
+              <strong>{copy.result.evidenceLockerTitle}</strong>
+              <span>{copy.result.evidenceLockerDescription}</span>
+            </div>
+
+            <label className="assistant-upload-dropzone">
+              <input
+                className="assistant-upload-input"
+                multiple
+                type="file"
+                onChange={handleEvidenceUpload}
+              />
+              <strong>{copy.result.uploadEvidence}</strong>
+              <span>{copy.result.uploadEvidenceHint}</span>
+            </label>
+
+            {Object.keys(groupedEvidence).length ? (
+              <div className="assistant-evidence-groups">
+                {Object.entries(groupedEvidence).map(([group, items]) => (
+                  <article className="assistant-evidence-group" key={group}>
+                    <div className="assistant-evidence-group__head">
+                      <strong>{group}</strong>
+                      <span>{items.length} {copy.result.evidenceCountSuffix}</span>
+                    </div>
+
+                    <div className="assistant-evidence-list">
+                      {items.map((item) => (
+                        <div className="assistant-evidence-item" key={item.id}>
+                          <div>
+                            <strong>{item.name}</strong>
+                            <span>
+                              {formatEvidenceSize(item.size)} · {item.type || copy.result.evidenceUnknownType}
+                            </span>
+                          </div>
+                          <button
+                            className="text-link"
+                            type="button"
+                            onClick={() => handleEvidenceRemove(item.id)}
+                          >
+                            {copy.result.removeEvidence}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="assistant-tool-empty">{copy.result.evidenceEmpty}</p>
+            )}
+          </section>
+        </div>
+      </article>
     </section>
   );
 }

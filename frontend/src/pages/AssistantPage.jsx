@@ -60,6 +60,7 @@ export default function AssistantPage() {
         onSubmit={handleSubmit}
         result={result}
         submittedCase={submittedCase}
+        workspaceOwnerId={user?.uid || 'guest'}
       />
     </div>
   );

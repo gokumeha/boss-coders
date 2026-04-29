@@ -286,6 +286,29 @@ const BASE_COPY = Object.freeze({
       'Preparing practical next steps and authority guidance',
       'Getting the draft letter and checklist workspace ready',
     ],
+    workspaceKicker: 'Case Workspace',
+    workspaceTitle: 'Saved case workspace',
+    workspaceDescription:
+      'Keep your notes, evidence manifest, and draft exports tied to this issue so you can return without rebuilding everything.',
+    workspaceReadyLabel: 'Auto-saving locally',
+    workspaceSavedLabel: 'Saved',
+    workspaceNameLabel: 'Workspace name',
+    workspaceNotesLabel: 'Case notes',
+    workspaceNotesPlaceholder:
+      'Add witness names, promised callbacks, missing documents, or anything you want to remember before your next step.',
+    downloadWorkspace: 'Download Case Pack',
+    clearWorkspace: 'Clear Workspace',
+    evidenceLockerTitle: 'Evidence locker',
+    evidenceLockerDescription:
+      'Upload files to create a structured evidence manifest. Files stay on this device, and the workspace remembers their labels and order.',
+    uploadEvidence: 'Upload Evidence Files',
+    uploadEvidenceHint:
+      'Add screenshots, PDFs, invoices, notices, chats, photos, or recordings.',
+    evidenceEmpty:
+      'No evidence files logged yet. Add the documents you already have so your case pack feels concrete.',
+    removeEvidence: 'Remove',
+    evidenceCountSuffix: 'files',
+    evidenceUnknownType: 'Unknown file type',
   },
   resources: {
     title: 'Research & Court Access',
